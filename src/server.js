@@ -16,8 +16,6 @@ app.use('/summary', summaryRoutes)
 app.use('/team', teamRoutes)
 app.use('/user', userRoutes)
 
-
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
