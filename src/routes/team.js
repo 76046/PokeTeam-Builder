@@ -9,6 +9,6 @@ router.post('/', controller.postTeam)
 router.get('/:id', controller.getTeamById)
 router.put('/:id', controller.patchTeamById)
 router.delete('/:id', controller.deleteTeamById)
-router.post('/teams', controller.postTeams)
+router.get('/teams', controller.postTeams)
 
 export default router

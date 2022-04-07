@@ -10,6 +10,6 @@ router.post('/', controller.postPokemon)
 router.get('/:id', auth, controller.getPokemonById) // Admin
 router.put('/:id', auth, controller.patchPokemonById) // Admin
 router.delete('/:id', auth, controller.deletePokemonById) // Admin
-router.post('/pokemons', controller.getPokemons)
+router.get('/pokemons', controller.getPokemons)
 
 export default router

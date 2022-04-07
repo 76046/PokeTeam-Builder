@@ -10,6 +10,6 @@ router.post('/', auth, controller.postMove) // Admin
 router.get('/:id', controller.getMoveById)
 router.put('/:id', auth, controller.patchMoveById) // Admin
 router.delete('/:id', auth, controller.deleteMoveById) // Admin
-router.post('/moves', controller.getMoves)
+router.get('/moves', controller.getMoves)
 
 export default router
