@@ -9,6 +9,7 @@ import summaryRoutes from "./routes/summary.js";
 import teamRoutes from "./routes/team.js";
 import userRoutes from "./routes/user.js";
 import connect from "./methods/db.connection.js";
+import init from "./methods/db.init.js";
 import "dotenv/config";
 
 app.use("/invitation", invitationRoutes);
@@ -21,6 +22,7 @@ app.use("/user", userRoutes);
 connect()
   .then(() => {
     console.log("\x1b[42m\x1b[30m%s\x1b[0m", "Database connected");
+    init().then(() => console.log("Inserted database"));
     app.listen(port, () => {
       console.log(
         "\x1b[44m\x1b[30m%s\x1b[0m",
