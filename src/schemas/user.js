@@ -23,14 +23,22 @@ const schema = new mongoose.Schema({
     maxlength: 250,
     trim: true,
   },
+  roles: {
+    type: [mongoose.Schema.Types.ObjectId],
+    default: [],
+    ref: "Role",
+    required: false,
+  },
   summaries: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Summary",
+    default: [],
     required: false,
   },
   friends: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "User",
+    default: [],
     required: false,
   },
 });

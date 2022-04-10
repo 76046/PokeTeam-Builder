@@ -12,6 +12,7 @@ import connect from "./methods/db.connection.js";
 import init from "./methods/db.init.js";
 import "dotenv/config";
 
+app.use(express.json());
 app.use("/invitation", invitationRoutes);
 app.use("/move", moveRoutes);
 app.use("/pokemon", pokemonRoutes);
@@ -22,7 +23,6 @@ app.use("/user", userRoutes);
 connect()
   .then(() => {
     console.log("\x1b[42m\x1b[30m%s\x1b[0m", "Database connected");
-    init().then(() => console.log("Inserted database"));
     app.listen(port, () => {
       console.log(
         "\x1b[44m\x1b[30m%s\x1b[0m",

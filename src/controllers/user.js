@@ -1,45 +1,120 @@
+import User from "../schemas/user.js";
+import Role from "../schemas/role.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
+export const getUserById = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
 
-export const getUserById = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+export const postUser = async (req, res) => {
+  try {
+    const tempUsr = req.body;
+    tempUsr.roles = await Role.find().where("name").in(tempUsr.roles).exec();
 
-export const postUser = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+    const salt = await bcrypt.genSalt();
+    tempUsr.password = await bcrypt.hash(tempUsr.password, salt);
 
-export const deleteUserById = (req, res) =>{ // Admin
-    return res.status(418).end('Not implemented')
-}  
-         
-export const patchUserById = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+    const payload = {
+      login: tempUsr.login,
+      password: tempUsr.password,
+      roles: tempUsr.roles,
+    };
 
-export const postUserLogin = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+    await new User(tempUsr).save();
 
-export const getUserSummaries = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+    const SECRET = process.env.TOKEN_SECRET;
+    const token = jwt.sign(payload, SECRET, {
+      expiresIn: "1d",
+    });
 
-export const postUserInvite = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+    delete tempUsr.password;
+    delete tempUsr.roles;
+    return res.send({
+      user: tempUsr,
+      token,
+    });
+  } catch (e) {
+    res.status(500).end();
+  }
+};
 
-export const getUserInvitations = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+export const deleteUserById = (req, res) => {
+  if (req.roles.map((e) => e.name).includes("admin")) {
+    return res.status(200).end();
+  }
+  return res.status(418).end("Not implemented");
+};
 
-export const getUserFriends = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+export const patchUserById = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
 
-export const postUserAccept = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+export const postUserLogin = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      username: req.body.username,
+    }).populate("roles");
+    if (!user) res.status(401).end("Login");
 
-export const getUserStart = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}  
+    const checkPassword = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+    if (!checkPassword) res.status(401).end("Password");
+
+    const SECRET = process.env.TOKEN_SECRET;
+
+    const payload = {
+      login: user.login,
+      password: user.password,
+      roles: user.roles,
+    };
+
+    const token = jwt.sign(payload, SECRET, {
+      expiresIn: "1d",
+    });
+    delete user.password;
+    delete user.roles;
+
+    res.send({
+      user: user,
+      token,
+    });
+  } catch (e) {
+    res.status(500).end();
+  }
+};
+
+export const getUserSummaries = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
+
+export const postUserInvite = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
+
+export const getUserInvitations = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
+
+export const getUserFriends = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
+
+export const postUserAccept = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
+
+export const getUserStart = (req, res) => {
+  return res.status(418).end("Not implemented");
+};
+
+export const verifyToken = async (req, res) => {
+  try {
+    jwt.verify(req.body.token, process.env.TOKEN_SECRET);
+    res.json({ valid: true });
+  } catch (ex) {
+    res.json({ valid: false });
+  }
+};
