@@ -30,6 +30,7 @@ export const postUser = async (req, res) => {
 
     delete tempUsr.password;
     delete tempUsr.roles;
+    delete tempUsr.__v;
     return res.send({
       user: tempUsr,
       token,
@@ -74,11 +75,14 @@ export const postUserLogin = async (req, res) => {
     const token = jwt.sign(payload, SECRET, {
       expiresIn: "1d",
     });
-    delete user.password;
-    delete user.roles;
+    let temp = user._doc;
+
+    delete temp.password;
+    delete temp.roles;
+    delete temp.__v;
 
     res.send({
-      user: user,
+      user: temp,
       token,
     });
   } catch (e) {

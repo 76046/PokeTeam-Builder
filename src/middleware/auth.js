@@ -9,7 +9,7 @@ const auth = async (req, res, next) => {
       if (err) res.status(401).end("FaultyToken");
       const payload = jwt.decode(token, SECRET);
       req.roles = payload.roles;
-      req.login = payload.login;
+      req.username = payload.username;
       return next();
     });
   } catch (e) {

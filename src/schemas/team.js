@@ -12,7 +12,6 @@ const schema = new mongoose.Schema({
     required: true,
   },
   pokemons: {
-    type: Boolean,
     required: true,
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Pokemon",
