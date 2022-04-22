@@ -9,12 +9,14 @@ import summaryRoutes from "./routes/summary.js";
 import teamRoutes from "./routes/team.js";
 import userRoutes from "./routes/user.js";
 import connect from "./methods/db.connection.js";
+import init from "./methods/db.init.js";
 import "dotenv/config";
 import formatter from "./middleware/format.js";
 
 app.use(express.json());
 app.use(formatter);
 
+app.use(express.json());
 app.use("/invitation", invitationRoutes);
 app.use("/move", moveRoutes);
 app.use("/pokemon", pokemonRoutes);
