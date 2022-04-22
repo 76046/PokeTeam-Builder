@@ -2,6 +2,7 @@ import User from "../schemas/user.js";
 import Role from "../schemas/role.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 export const getUserById = (req, res) => {
   return res.status(418).end("Not implemented");
@@ -10,7 +11,11 @@ export const getUserById = (req, res) => {
 export const postUser = async (req, res) => {
   try {
     const tempUsr = req.body;
-    tempUsr.roles = await Role.find().where("name").in(tempUsr.roles).exec();
+    if (tempUsr.roles) {
+      tempUsr.roles = await Role.find().where("name").in(tempUsr.roles).exec();
+    } else {
+      tempUsr.roles = [mongoose.Types.ObjectId("6252e1373e63e8bea6e50236")];
+    }
 
     const salt = await bcrypt.genSalt();
     tempUsr.password = await bcrypt.hash(tempUsr.password, salt);
