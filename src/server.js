@@ -16,18 +16,16 @@ const port = process.env.PORT ?? 3000;
 
 const app = express();
 
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 app.use(formatter);
 
-app.use(express.json());
 app.use("/invitation", invitationRoutes);
 app.use("/move", moveRoutes);
 app.use("/pokemon", pokemonRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/team", teamRoutes);
 app.use("/user", userRoutes);
-
 
 connect()
   .then(() => {

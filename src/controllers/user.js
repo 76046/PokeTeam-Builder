@@ -16,7 +16,7 @@ export const postUser = async (req, res) => {
     tempUsr.password = await bcrypt.hash(tempUsr.password, salt);
 
     const payload = {
-      username: user.username,
+      username: tempUsr.username,
       roles: tempUsr.roles,
     };
 
