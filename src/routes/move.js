@@ -8,7 +8,7 @@ const router = Router()
 
 router.post('/', auth, controller.postMove) // Admin
 router.get('/:id', controller.getMoveById)
-router.put('/:id', auth, controller.patchMoveById) // Admin
+router.put('/:id', auth, controller.putMoveById) // Admin
 router.delete('/:id', auth, controller.deleteMoveById) // Admin
 router.get('/moves', controller.getMoves)
 

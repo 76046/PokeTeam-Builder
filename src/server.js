@@ -1,6 +1,7 @@
 import express from "express";
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT ?? 3000;
 
 import invitationRoutes from "./routes/invitation.js";
 import moveRoutes from "./routes/move.js";
@@ -11,6 +12,10 @@ import userRoutes from "./routes/user.js";
 import connect from "./methods/db.connection.js";
 import init from "./methods/db.init.js";
 import "dotenv/config";
+import formatter from "./middleware/format.js";
+
+app.use(express.json());
+app.use(formatter);
 
 app.use(express.json());
 app.use("/invitation", invitationRoutes);
@@ -19,6 +24,7 @@ app.use("/pokemon", pokemonRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/team", teamRoutes);
 app.use("/user", userRoutes);
+
 
 connect()
   .then(() => {

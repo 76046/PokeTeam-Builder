@@ -7,8 +7,8 @@ const router = Router()
 
 router.post('/', controller.postTeam)
 router.get('/:id', controller.getTeamById)
-router.put('/:id', controller.patchTeamById)
+router.put('/:id', controller.putTeamById)
 router.delete('/:id', controller.deleteTeamById)
-router.get('/teams', controller.postTeams)
+router.post('/teams', controller.postTeams)
 
 export default router
