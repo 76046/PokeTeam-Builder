@@ -1,7 +1,9 @@
 import express from "express";
+import cors from "cors";
+import "dotenv/config";
 
-const app = express();
-const port = process.env.PORT ?? 3000;
+import formatter from "./middleware/format.js";
+import connect from "./methods/db.connection.js";
 
 import invitationRoutes from "./routes/invitation.js";
 import moveRoutes from "./routes/move.js";
@@ -9,11 +11,12 @@ import pokemonRoutes from "./routes/pokemon.js";
 import summaryRoutes from "./routes/summary.js";
 import teamRoutes from "./routes/team.js";
 import userRoutes from "./routes/user.js";
-import connect from "./methods/db.connection.js";
-import init from "./methods/db.init.js";
-import "dotenv/config";
-import formatter from "./middleware/format.js";
 
+const port = process.env.PORT ?? 3000;
+
+const app = express();
+
+app.use(cors())
 app.use(express.json());
 app.use(formatter);
 
