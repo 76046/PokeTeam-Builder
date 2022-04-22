@@ -16,8 +16,7 @@ export const postUser = async (req, res) => {
     tempUsr.password = await bcrypt.hash(tempUsr.password, salt);
 
     const payload = {
-      login: tempUsr.login,
-      password: tempUsr.password,
+      username: user.username,
       roles: tempUsr.roles,
     };
 
@@ -67,8 +66,7 @@ export const postUserLogin = async (req, res) => {
     const SECRET = process.env.TOKEN_SECRET;
 
     const payload = {
-      login: user.login,
-      password: user.password,
+      username: user.username,
       roles: user.roles,
     };
 
