@@ -7,7 +7,7 @@ const router = Router()
 
 router.post('/', controller.postSummary)
 router.get('/:id', controller.getSummaryById)
-router.put('/:id', controller.patchSummaryById)
+router.put('/:id', controller.putSummaryById)
 router.delete('/:id', controller.deleteSummaryById)
 router.get('/summaries', controller.getSummaries)
 

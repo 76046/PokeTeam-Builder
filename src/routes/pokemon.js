@@ -8,7 +8,7 @@ const router = Router()
 
 router.post('/', controller.postPokemon)
 router.get('/:id', auth, controller.getPokemonById) // Admin
-router.put('/:id', auth, controller.patchPokemonById) // Admin
+router.put('/:id', auth, controller.putPokemonById) // Admin
 router.delete('/:id', auth, controller.deletePokemonById) // Admin
 router.get('/pokemons', controller.getPokemons)
 

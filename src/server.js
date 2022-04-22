@@ -10,6 +10,10 @@ import teamRoutes from "./routes/team.js";
 import userRoutes from "./routes/user.js";
 import connect from "./methods/db.connection.js";
 import "dotenv/config";
+import formatter from "./middleware/format.js";
+
+app.use(express.json());
+app.use(formatter);
 
 app.use("/invitation", invitationRoutes);
 app.use("/move", moveRoutes);
@@ -17,6 +21,7 @@ app.use("/pokemon", pokemonRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/team", teamRoutes);
 app.use("/user", userRoutes);
+
 
 connect()
   .then(() => {

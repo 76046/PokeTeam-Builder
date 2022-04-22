@@ -8,7 +8,7 @@ const router = Router()
 
 router.post('/', controller.postUser)
 router.get('/:id', controller.getUserById)
-router.put('/:id', controller.patchUserById)
+router.put('/:id', controller.putUserById)
 router.delete('/:id', auth, controller.deleteUserById) // Admin
 router.post('/accept', controller.postUserAccept)
 router.get('/friends', controller.getUserFriends)
