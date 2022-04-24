@@ -17,6 +17,7 @@ const schema = new mongoose.Schema({
     required: true,
   },
 });
+schema.index({ requestee: 1, requester: 1 }, { unique: true });
 
 const Invitation = mongoose.model("Invitation", schema);
 
