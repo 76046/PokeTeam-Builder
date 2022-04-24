@@ -118,11 +118,17 @@ export const postUserInvite = async (req, res) => {
     });
     if (!requester) return res.status(404).end("Requester not found");
     const requestee = await User.findOne({
-      email: req.body.requestee,
+      email: req.body.receiver,
     });
     if (!requestee) return res.status(404).end("Requestee not found");
     if (requester._doc._id.toString() === requestee._doc._id.toString())
-      return res.status(404).end("You are requestee");
+      return res.status(400).end("You are requestee");
+    if (
+      requester._doc.friends.includes(requestee._doc._id) &&
+      requestee._doc.friends.includes(requester._doc._id)
+    ) {
+      return res.status(400).end("Already a friend");
+    }
 
     const invitation = {
       requester: requester._doc._id,
