@@ -3,6 +3,7 @@ import Role from "../schemas/role.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import Invitation from "../schemas/invitation.js";
 
 export const getUserById = (req, res) => {
   return res.status(418).end("Not implemented");
@@ -14,32 +15,42 @@ export const postUser = async (req, res) => {
     if (tempUsr.roles) {
       tempUsr.roles = await Role.find().where("name").in(tempUsr.roles).exec();
     } else {
-      tempUsr.roles = [mongoose.Types.ObjectId("6252e1373e63e8bea6e50236")];
+      tempUsr.roles = await Role.findOne({ name: "user" });
     }
 
     const salt = await bcrypt.genSalt();
     tempUsr.password = await bcrypt.hash(tempUsr.password, salt);
 
     const payload = {
-      username: tempUsr.username,
+      email: tempUsr.email,
       roles: tempUsr.roles,
     };
 
-    await new User(tempUsr).save();
-
-    const SECRET = process.env.TOKEN_SECRET;
-    const token = jwt.sign(payload, SECRET, {
-      expiresIn: "1d",
+    const saved = await new User(tempUsr).save().catch((err) => {
+      if (err && err.code === 11000) {
+        return res.status(422).end("Already exists");
+      }
+      return res.status(422).end("Something goes wrong");
     });
 
-    delete tempUsr.password;
-    delete tempUsr.roles;
-    delete tempUsr.__v;
-    return res.send({
-      user: tempUsr,
-      token,
-    });
-  } catch (e) {
+    if (saved) {
+      await saved.populate("friends", { username: 1, email: 1, _id: 1 });
+      let data = saved.toObject();
+      const SECRET = process.env.TOKEN_SECRET;
+      const token = jwt.sign(payload, SECRET, {
+        expiresIn: "1d",
+      });
+      data.roles = data.roles.map((e) => e.name);
+      delete data.summaries;
+      delete data.password;
+      delete data.__v;
+      return res.send({
+        user: data,
+        token,
+      });
+    }
+  } catch (err) {
+    console.error(err);
     res.status(500).end();
   }
 };
@@ -58,8 +69,10 @@ export const patchUserById = (req, res) => {
 export const postUserLogin = async (req, res) => {
   try {
     const user = await User.findOne({
-      username: req.body.username,
-    }).populate("roles");
+      email: req.body.email,
+    })
+      .populate("roles")
+      .populate("friends", { username: 1, email: 1, _id: 1 });
     if (!user) res.status(401).end("Login");
 
     const checkPassword = await bcrypt.compare(
@@ -71,7 +84,7 @@ export const postUserLogin = async (req, res) => {
     const SECRET = process.env.TOKEN_SECRET;
 
     const payload = {
-      username: user.username,
+      email: user.email,
       roles: user.roles,
     };
 
@@ -79,16 +92,17 @@ export const postUserLogin = async (req, res) => {
       expiresIn: "1d",
     });
     let temp = user._doc;
-
+    temp.roles = temp.roles.map((e) => e.name);
+    delete temp.summaries;
     delete temp.password;
-    delete temp.roles;
     delete temp.__v;
 
     res.send({
       user: temp,
       token,
     });
-  } catch (e) {
+  } catch (err) {
+    console.error(err);
     res.status(500).end();
   }
 };
@@ -97,12 +111,61 @@ export const getUserSummaries = (req, res) => {
   return res.status(418).end("Not implemented");
 };
 
-export const postUserInvite = (req, res) => {
-  return res.status(418).end("Not implemented");
+export const postUserInvite = async (req, res) => {
+  try {
+    const requester = await User.findOne({
+      email: req.email,
+    });
+    if (!requester) return res.status(404).end("Requester not found");
+    const requestee = await User.findOne({
+      email: req.body.requestee,
+    });
+    if (!requestee) return res.status(404).end("Requestee not found");
+    if (requester._doc._id.toString() === requestee._doc._id.toString())
+      return res.status(404).end("You are requestee");
+
+    const invitation = {
+      requester: requester._doc._id,
+      requestee: requestee._doc._id,
+      status: "PENDING",
+    };
+
+    const savedInvitation = await new Invitation(invitation).save();
+    res.send({
+      id: savedInvitation._id,
+    });
+  } catch (err) {
+    if (err && err.code === 11000) {
+      return res.status(404).end("Invitation already exists");
+    }
+    console.error(err);
+    res.status(500).end();
+  }
 };
 
-export const getUserInvitations = (req, res) => {
-  return res.status(418).end("Not implemented");
+export const getUserInvitations = async (req, res) => {
+  try {
+    let response = {};
+    const user = await User.findOne({
+      email: req.email,
+    });
+    const invitations = await Invitation.find({})
+      .populate("requester", { username: 1, email: 1, _id: 1 })
+      .populate("requestee", { username: 1, email: 1, _id: 1 });
+
+    const requester = invitations.filter(
+      (i) => i._doc.requester._doc._id.toString() === user._id.toString()
+    );
+    const requestee = invitations.filter(
+      (i) => i._doc.requestee._doc._id.toString() === user._id.toString()
+    );
+
+    if (requestee) response.received = requestee;
+    if (requester) response.sended = requester;
+    res.send(response);
+  } catch (err) {
+    res.status(500).end();
+  }
 };
 
 export const getUserFriends = (req, res) => {
@@ -120,8 +183,12 @@ export const getUserStart = (req, res) => {
 export const verifyToken = async (req, res) => {
   try {
     jwt.verify(req.body.token, process.env.TOKEN_SECRET);
-    res.json({ valid: true });
+    res.json({
+      valid: true,
+    });
   } catch (ex) {
-    res.json({ valid: false });
+    res.json({
+      valid: false,
+    });
   }
 };

@@ -6,12 +6,12 @@ const schema = new mongoose.Schema({
     enum: ["ACCEPTED", "REJECTED", "PENDING"],
     required: true,
   },
-  reqester: {
+  requester: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  reqestee: {
+  requestee: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
