@@ -48,3 +48,29 @@ export const getAcceptById = async (req, res) => {
     res.status(500).end();
   }
 };
+
+export const getRejectById = async (req, res) => {
+  try {
+    const receiver = req.email;
+    const invitation = await Invitation.findOne({ _id: req.params.id })
+      .populate("requester", { username: 1, email: 1, _id: 1, friends: 1 })
+      .populate("requestee", { username: 1, email: 1, _id: 1, friends: 1 });
+
+    if (!invitation) return res.status(404).end("Not found");
+    if (invitation._doc.status === "PENDING") {
+      let requestee = invitation._doc.requestee._doc;
+      if (requestee.email != receiver) {
+        return res.status(401).end("Not authorized");
+      }
+      await Invitation.findOneAndUpdate(
+        { _id: invitation._doc._id },
+        { status: "REJECTED" }
+      );
+      return res.status(200).end();
+    }
+    return res.status(404).end("Not found");
+  } catch (err) {
+    console.error(err);
+    res.status(500).end();
+  }
+};

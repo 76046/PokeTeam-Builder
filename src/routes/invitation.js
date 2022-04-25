@@ -9,6 +9,7 @@ const router = Router();
 router.post("/", controller.postInvitation);
 router.get("/invitations", controller.getInvitationsById);
 router.get("/accept/:id", auth, controller.getAcceptById);
+router.get("/reject/:id", auth, controller.getRejectById);
 router.delete("/:id", controller.deleteInvitationById);
 
 export default router;

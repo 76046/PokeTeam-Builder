@@ -15,7 +15,7 @@ export const postUser = async (req, res) => {
     if (tempUsr.roles) {
       tempUsr.roles = await Role.find().where("name").in(tempUsr.roles).exec();
     } else {
-      tempUsr.roles = await Role.findOne({ name: "user" });
+      tempUsr.roles = await Role.find({ name: "user" }).exec();
     }
 
     const salt = await bcrypt.genSalt();
@@ -33,16 +33,16 @@ export const postUser = async (req, res) => {
       return res.status(422).end("Something goes wrong");
     });
 
-    if (saved) {
-      await saved.populate("friends", { username: 1, email: 1, _id: 1 });
-      let data = saved.toObject();
+    if (saved._doc) {
+      let data = saved._doc;
       const SECRET = process.env.TOKEN_SECRET;
       const token = jwt.sign(payload, SECRET, {
         expiresIn: "1d",
       });
-      data.roles = data.roles.map((e) => e.name);
+      data.roles = tempUsr.roles.map((e) => e._doc.name);
       delete data.summaries;
       delete data.password;
+      delete data.friends;
       delete data.__v;
       return res.send({
         user: data,
@@ -159,18 +159,30 @@ export const getUserInvitations = async (req, res) => {
       .populate("requester", { username: 1, email: 1, _id: 1 })
       .populate("requestee", { username: 1, email: 1, _id: 1 });
 
-    const requester = invitations.filter(
-      (i) => i._doc.requester._doc._id.toString() === user._id.toString()
-    );
-    const requestee = invitations.filter(
-      (i) => i._doc.requestee._doc._id.toString() === user._id.toString()
-    );
+    const requester = invitations
+      .filter(
+        (i) => i._doc.requester._doc._id.toString() === user._id.toString()
+      )
+      .map((i) => i._doc);
+
+    for (let i = 0; i < requester.length; i++) {
+      delete requester[i].requester;
+    }
+
+    const requestee = invitations
+      .filter(
+        (i) => i._doc.requestee._doc._id.toString() === user._id.toString()
+      )
+      .map((i) => i._doc);
+    for (let i = 0; i < requestee.length; i++) {
+      delete requestee[i].requestee;
+    }
 
     if (requestee) response.received = requestee;
-    if (requester) response.sended = requester;
+    if (requester) response.sent = requester;
     res.send(response);
   } catch (err) {
-    res.status(500).end();
+    return res.status(500).end();
   }
 };
 
