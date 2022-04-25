@@ -62,10 +62,7 @@ export const getRejectById = async (req, res) => {
       if (requestee.email != receiver) {
         return res.status(401).end("Not authorized");
       }
-      await Invitation.findOneAndUpdate(
-        { _id: invitation._doc._id },
-        { status: "REJECTED" }
-      );
+      await Invitation.findByIdAndDelete(invitation._doc._id);
       return res.status(200).end();
     }
     return res.status(404).end("Not found");

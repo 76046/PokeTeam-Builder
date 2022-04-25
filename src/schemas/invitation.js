@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const schema = new mongoose.Schema({
   status: {
     type: String,
-    enum: ["ACCEPTED", "REJECTED", "PENDING"],
+    enum: ["ACCEPTED", "PENDING"],
     required: true,
   },
   requester: {
