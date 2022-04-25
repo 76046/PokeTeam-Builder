@@ -11,6 +11,7 @@ import pokemonRoutes from "./routes/pokemon.js";
 import summaryRoutes from "./routes/summary.js";
 import teamRoutes from "./routes/team.js";
 import userRoutes from "./routes/user.js";
+import testingEngine from "./routes/engine.js";
 
 const port = process.env.PORT ?? 3000;
 
@@ -26,6 +27,7 @@ app.use("/pokemon", pokemonRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/team", teamRoutes);
 app.use("/user", userRoutes);
+app.use("/engine", testingEngine);
 
 connect()
   .then(() => {
