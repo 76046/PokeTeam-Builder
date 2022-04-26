@@ -7,6 +7,10 @@ const schema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
+  value: {
+    type: Object,
+    required: true,
+  },
 });
 
 const Rule = mongoose.model("Rule", schema);
