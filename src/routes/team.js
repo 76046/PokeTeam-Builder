@@ -1,14 +1,14 @@
-import { Router } from 'express'
-import * as controller from '../controllers/team.js'
-
-const router = Router()
+import { Router } from "express";
+import * as controller from "../controllers/team.js";
+import auth from "../middleware/auth.js";
+const router = Router();
 
 // # == Team
 
-router.post('/', controller.postTeam)
-router.get('/:id', controller.getTeamById)
-router.put('/:id', controller.putTeamById)
-router.delete('/:id', controller.deleteTeamById)
-router.post('/teams', controller.postTeams)
+router.post("/", auth, controller.postTeam);
+router.get("/teams", auth, controller.getTeams);
+router.get("/:id", auth, controller.getTeamById);
+router.patch("/:id", auth, controller.patchTeamById);
+router.delete("/:id", auth, controller.deleteTeamById);
 
-export default router
+export default router;

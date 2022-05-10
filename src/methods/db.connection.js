@@ -1,8 +1,11 @@
 import mongoose from "mongoose";
 
 const connect = () =>
-  mongoose.connect(process.env.DB_CONNECTION_STRING, {
-    useNewUrlParser: true,
-  });
+  mongoose.connect(
+    "mongodb+srv://adaptive-system:studies123@studies.zlfym.mongodb.net/pt-builder?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+    }
+  );
 
 export default connect;

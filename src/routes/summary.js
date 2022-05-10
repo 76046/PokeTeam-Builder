@@ -1,14 +1,14 @@
-import { Router } from 'express'
-import * as controller from '../controllers/summary.js'
-
-const router = Router()
+import { Router } from "express";
+import * as controller from "../controllers/summary.js";
+import auth from "../middleware/auth.js";
+const router = Router();
 
 // # == Summary
 
-router.post('/', controller.postSummary)
-router.get('/:id', controller.getSummaryById)
-router.put('/:id', controller.putSummaryById)
-router.delete('/:id', controller.deleteSummaryById)
-router.get('/summaries', controller.getSummaries)
+router.post("/", auth, controller.postSummary);
+router.get("/summaries", auth, controller.getSummaries);
+router.get("/:id", auth, controller.getSummaryById);
+router.patch("/:id", auth, controller.patchSummaryById);
+router.delete("/:id", auth, controller.deleteSummaryById);
 
-export default router
+export default router;

@@ -1,42 +1,66 @@
-import {addSummary, getSummary, updateSummary, deleteSummary} from '../database/summary.js'
+import Summary from "../schemas/summary.js";
 
-
-export const postSummary = (req, res) =>{
-    try{
-        addSummary(req.body.id,req.body)
-        return res.status(201).end('Summary added');
-    }catch(err){
-        return res.status(400).end(err.message)
+export const postSummary = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const summary = await Summary(req.body).save();
+      return res.send(summary._doc);
     }
-}
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const getSummaryById = (req, res) =>{
-    try{
-        const summary = getSummary(req.params.id)
-        return res.send(req.format(summary))
-    }catch(err){
-        return res.status(400).end(err.message)
+export const getSummaryById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const summary = await Summary.findOne({
+        _id: req.params.id,
+      });
+      return res.send(summary);
     }
-}
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const putSummaryById = (req, res) =>{
-    try{
-        updateSummary(req.params.id,req.body)
-        return res.status(200).end(`Summary with id:${req.params.id} is updated`)    
-    }catch(err){
-        return res.status(401).end(err.message)
+export const patchSummaryById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Summary.findByIdAndUpdate(req.params.id, req.body);
+      const summary = await Summary.findById(req.params.id);
+      return res.send(summary);
     }
-}
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const deleteSummaryById = (req, res) =>{
-    try{
-        deleteSummary(req.params.id)
-        return res.status(200).end(`Summary with id:${req.params.id} is deleted`)
-    }catch(err){
-        return res.status(401).end(err.message)
+export const deleteSummaryById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Summary.findByIdAndDelete(req.params.id);
+      return res.status(200).end("Deleted");
     }
-}
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const getSummaries = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}
+export const getSummaries = async (req, res) => {
+  try {
+    const summaries = await Summary.find().populate("type");
+    return res.send(summaries);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};

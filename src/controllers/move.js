@@ -1,41 +1,67 @@
-import {addMove, getMove, updateMove, deleteMove} from '../database/move.js'
+import Move from "../schemas/move.js";
+import Type from "../schemas/type.js";
 
-export const postMove = (req, res) =>{ // Admin
-    try{
-        addMove(req.body.id,req.body)
-        return res.status(201).end('Move added');
-    }catch(err){
-        return res.status(400).end(err.message)
+export const postMove = async (req, res) => {
+  // Admin
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      const move = await Move(req.body).save();
+      return res.send(move._doc);
     }
-}  
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const getMoveById = (req, res) =>{
-    try{
-        const move = getMove(req.params.id)
-        return res.send(req.format(move))
-    }catch(err){
-        return res.status(400).end(err.message)
+export const getMoveById = async (req, res) => {
+  try {
+    const move = await Move.findOne({
+      _id: req.params.id,
+    }).populate("type");
+    return res.send(move);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
+
+export const patchMoveById = async (req, res) => {
+  // Admin
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Move.findByIdAndUpdate(req.params.id, req.body);
+      const move = await Move.findById(req.params.id).populate("type");
+      return res.send(move);
     }
-}
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const putMoveById = (req, res) =>{ // Admin
-    try{
-        updateMove(req.params.id,req.body)
-        return res.status(200).end(`Move with id:${req.params.id} is updated`)    
-    }catch(err){
-        return res.status(401).end(err.message)
+export const deleteMoveById = async (req, res) => {
+  // Admin
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Move.findByIdAndDelete(req.params.id);
+      return res.status(200).end("Deleted");
     }
-} 
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const deleteMoveById = (req, res) =>{ // Admin
-    try{
-        deleteMove(req.params.id)
-        return res.status(200).end(`Move with id:${req.params.id} is deleted`)
-    }catch(err){
-        return res.status(401).end(err.message)
-    }
-}   
-
-export const getMoves = (req, res) =>{
-    return res.status(418).end('Not implemented')    
-}
+export const getMoves = async (req, res) => {
+  try {
+    const moves = await Move.find().populate("type");
+    return res.send(moves);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};

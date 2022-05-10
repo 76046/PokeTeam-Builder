@@ -1,56 +1,66 @@
-import {addTeam, getTeam,updateTeam,deleteTeam} from '../database/teams.js'
+import Team from "../schemas/team.js";
 
-export const postTeam = (req, res) =>{
-    try{
-        addTeam(req.body.id,req.body)
-        return res.status(201).end('Team added');
-    }catch(err){
-        return res.status(400).end(err.message)
+export const postTeam = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const team = await Team(req.body).save();
+      return res.send(team._doc);
     }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-    //return res.status(418).end('Not implemented')
-}
-
-export const getTeamById = (req, res) =>{
-    
-    try{
-        const team = getTeam(req.params.id)
-        return res.send(req.format(team))
-    }catch(err){
-        return res.status(400).end(err.message)
+export const getTeamById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const team = await Team.findOne({
+        _id: req.params.id,
+      }).populate("pokemons");
+      return res.send(team);
     }
-    
-    // const team = getTeam(req.params.id)
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-    // if(!team)
-    //     return res.status(404).end(`Team with id:${req.params.id} not found`)
-    
-    // return res.json(team)
-    
-    //return res.status(418).end('Not implemented')
-}
-
-export const putTeamById = (req, res) =>{
-
-    try{
-        updateTeam(req.params.id,req.body)
-        return res.status(200).end(`Team with id:${req.params.id} is updated`)    
-    }catch(err){
-        return res.status(401).end(err.message)
+export const patchTeamById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Team.findByIdAndUpdate(req.params.id, req.body);
+      const team = await Team.findById(req.params.id).populate("pokemons");
+      return res.send(team);
     }
-    //return res.status(418).end('Not implemented')
-}
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const deleteTeamById = (req, res) =>{
+export const deleteTeamById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Team.findByIdAndDelete(req.params.id);
+      return res.status(200).end("Deleted");
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-    try{
-        deleteTeam(req.params.id)
-        return res.status(200).end(`Team with id:${req.params.id} is deleted`)
-    }catch(err){
-        return res.status(401).end(err.message)
-    } 
-}
-
-export const postTeams = (req, res) =>{  
-    return res.status(418).end('Not implemented') 
-}
+export const getTeams = async (req, res) => {
+  try {
+    const teams = await Team.find().populate("pokemons");
+    return res.send(teams);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};

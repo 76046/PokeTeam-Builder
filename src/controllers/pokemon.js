@@ -1,43 +1,70 @@
-import {addPokemon, getPokemon, updatePokemon, deletePokemon} from '../database/pokemon.js'
+import Pokemon from "../schemas/pokemon.js";
 
-export const postPokemon = (req, res) =>{
-    try{
-        addPokemon(req.body.id,req.body)
-        return res.status(201).end('Pokemon added');
-    }catch(err){
-        return res.status(406).end(err.message)
+export const postPokemon = async (req, res) => {
+  // Admin
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      const pokemon = await Pokemon(req.body).save();
+      return res.send(pokemon._doc);
     }
-}
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const getPokemonById = (req, res) =>{ // Admin
-    try{
-        const pokemon = getPokemon(req.params.id)
-        //res.setHeader('Content-Type','text/html')
-        //return res.status(200).end('<h1>Hello World</h1>')
-        return res.send(req.format(pokemon))
-    }catch(err){
-        return res.status(406).end(err.message)
-    }
-}
+export const getPokemonById = async (req, res) => {
+  try {
+    const pokemon = await Pokemon.findOne({
+      _id: req.params.id,
+    })
+      .populate("moves")
+      .populate("types");
+    return res.send(pokemon);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
 
-export const putPokemonById = (req, res) =>{ // Admin
-    try{
-        updatePokemon(req.params.id,req.body)
-        return res.status(200).end(`Pokemon with id:${req.params.id} is updated`)    
-    }catch(err){
-        return res.status(406).end(err.message)
+export const patchPokemonById = async (req, res) => {
+  // Admin
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Pokemon.findByIdAndUpdate(req.params.id, req.body);
+      const pokemon = await Pokemon.findById(req.params.id)
+        .populate("moves")
+        .populate("types");
+      return res.send(pokemon);
     }
-}
-             
-export const deletePokemonById = (req, res) =>{ // Admin
-    try{
-        deletePokemon(req.params.id)
-        return res.status(200).end(`Pokemon with id:${req.params.id} is deleted`)
-    }catch(err){
-        return res.status(406).end(err.message)
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
+
+export const deletePokemonById = async (req, res) => {
+  // Admin
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Pokemon.findByIdAndDelete(req.params.id);
+      return res.status(200).end("Deleted");
     }
-}
-     
-export const getPokemons = (req, res) =>{
-    return res.status(418).end('Not implemented')
-}
+    return res.status(401).end("Not authorized");
+  } catch (err) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
+
+export const getPokemons = async (req, res) => {
+  try {
+    const pokemon = await Pokemon.find().populate("moves").populate("types");
+    return res.send(pokemon);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};

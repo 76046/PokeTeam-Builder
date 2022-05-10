@@ -2,7 +2,6 @@ import User from "../schemas/user.js";
 import Role from "../schemas/role.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 import Invitation from "../schemas/invitation.js";
 
 export const getUserById = (req, res) => {

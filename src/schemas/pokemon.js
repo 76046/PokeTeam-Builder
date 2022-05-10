@@ -7,8 +7,8 @@ const schema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
-  type: {
-    type: mongoose.Schema.Types.ObjectId,
+  types: {
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Type",
     required: true,
   },
@@ -25,6 +25,7 @@ const schema = new mongoose.Schema({
     ref: "Move",
     required: true,
   },
+  sprites: [String],
 });
 
 const Pokemon = mongoose.model("Pokemon", schema);

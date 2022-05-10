@@ -17,24 +17,42 @@ export const postRule = async (req, res) => {
   }
 };
 
-export const getRuleById = (req, res) => {
+export const getRuleById = async (req, res) => {
   try {
-  } catch (err) {
-    return res.status(400).end(err.message);
+    const rule = await Rule.findOne({
+      _id: req.params.id,
+    });
+    return res.send(rule);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
   }
 };
 
-export const putRuleById = (req, res) => {
+export const patchRuleById = async (req, res) => {
   try {
-  } catch (err) {
-    return res.status(401).end(err.message);
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Rule.findByIdAndUpdate(req.params.id, req.body);
+      const rule = await Rule.findById(req.params.id);
+      return res.send(rule);
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
   }
 };
 
-export const deleteRuleById = (req, res) => {
+export const deleteRuleById = async (req, res) => {
   try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Rule.findByIdAndDelete(req.params.id);
+      return res.status(200).end("Deleted");
+    }
+    return res.status(401).end("Not authorized");
   } catch (err) {
-    return res.status(401).end(err.message);
+    console.error(e);
+    res.status(500).end();
   }
 };
 
@@ -43,6 +61,7 @@ export const getRules = async (req, res) => {
     const rules = await Rule.find({}).exec();
     res.send(rules);
   } catch (err) {
-    return res.status(500).end(err.message);
+    console.error(e);
+    return res.status(500).end();
   }
 };
