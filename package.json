@@ -6,6 +6,7 @@
     "express": "^4.17.3",
     "fs": "^0.0.1-security",
     "js-yaml": "^4.1.0",
+    "json-rules-engine": "^6.1.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.10",
     "object-to-xml": "^2.0.0",
