@@ -47,14 +47,24 @@ const settings = {
             name: "body",
             description: "pokemon object that needs to be added to the service",
             required: true,
-            schema: { $ref: "#/components/schemas/pokemon" },
+            schema: {
+              $ref: "#/components/schemas/pokemon",
+            },
           },
         ],
         responses: {
-          400: { description: "Invalid body or id supplied" },
-          401: { description: "Unauthorized" },
+          400: {
+            description: "Invalid body or id supplied",
+          },
+          401: {
+            description: "Unauthorized",
+          },
         },
-        security: [{ bearerAuth: [] }],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
       },
       get: {
         tags: ["pokemon"],
@@ -75,9 +85,13 @@ const settings = {
         responses: {
           200: {
             description: "successful operation",
-            schema: { $ref: "#/components/schemas/pokemon" },
+            schema: {
+              $ref: "#/components/schemas/pokemon",
+            },
           },
-          404: { description: "pokemon not found" },
+          404: {
+            description: "pokemon not found",
+          },
         },
       },
       patch: {
@@ -102,15 +116,27 @@ const settings = {
             description:
               "pokemon object that needs to be added/updated to the service",
             required: true,
-            schema: { $ref: "#/components/schemas/pokemon" },
+            schema: {
+              $ref: "#/components/schemas/pokemon",
+            },
           },
         ],
         responses: {
-          400: { description: "Invalid body or id supplied" },
-          401: { description: "Unauthorized" },
-          404: { description: "pokemon not found" },
+          400: {
+            description: "Invalid body or id supplied",
+          },
+          401: {
+            description: "Unauthorized",
+          },
+          404: {
+            description: "pokemon not found",
+          },
         },
-        security: [{ bearerAuth: ["write:pokemons", "read:pokemons"] }],
+        security: [
+          {
+            bearerAuth: ["write:pokemons", "read:pokemons"],
+          },
+        ],
       },
       delete: {
         tags: ["pokemon"],
@@ -129,12 +155,24 @@ const settings = {
           },
         ],
         responses: {
-          200: { description: "successful operation" },
-          401: { description: "Unauthorized" },
-          400: { description: "Invalid ID supplied" },
-          404: { description: "pokemon not found" },
+          200: {
+            description: "successful operation",
+          },
+          401: {
+            description: "Unauthorized",
+          },
+          400: {
+            description: "Invalid ID supplied",
+          },
+          404: {
+            description: "pokemon not found",
+          },
         },
-        security: [{ bearerAuth: [] }],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
       },
     },
     "/user": {
@@ -151,36 +189,18 @@ const settings = {
             name: "body",
             description: "user object that needs to be added to the service",
             required: true,
-            schema: { $ref: "#/components/schemas/user" },
+            schema: {
+              $ref: "#/components/schemas/user",
+            },
           },
         ],
         responses: {
-          400: { description: "Invalid body or id supplied" },
-          422: { description: "Already exists" },
-        },
-      },
-      get: {
-        tags: ["user"],
-        summary: "Find user by ID",
-        description: "Returns a single user",
-        operationId: "getuserById",
-        produces: ["application/json", "application/xml"],
-        parameters: [
-          {
-            name: "userId",
-            in: "path",
-            description: "ID of user to return",
-            required: true,
-            type: "string",
-            example: "61d8afa5bb45e0eaa4f6f867",
+          400: {
+            description: "Invalid body or id supplied",
           },
-        ],
-        responses: {
-          200: {
-            description: "successful operation",
-            schema: { $ref: "#/components/schemas/user" },
+          422: {
+            description: "Already exists",
           },
-          404: { description: "user not found" },
         },
       },
       patch: {
@@ -205,39 +225,27 @@ const settings = {
             description:
               "user object that needs to be added/updated to the service",
             required: true,
-            schema: { $ref: "#/components/schemas/user" },
+            schema: {
+              $ref: "#/components/schemas/user",
+            },
           },
         ],
         responses: {
-          400: { description: "Invalid body or id supplied" },
-          401: { description: "Unauthorized" },
-          404: { description: "user not found" },
+          400: {
+            description: "Invalid body or id supplied",
+          },
+          401: {
+            description: "Unauthorized",
+          },
+          404: {
+            description: "user not found",
+          },
         },
-        security: [{ bearerAuth: [] }],
-      },
-      delete: {
-        tags: ["user"],
-        summary: "Delete user by ID",
-        description: "Delete a single user",
-        operationId: "deleteuserById",
-        produces: ["text/plain"],
-        parameters: [
+        security: [
           {
-            name: "userId",
-            in: "path",
-            description: "ID of user to delete",
-            required: true,
-            type: "string",
-            example: "61d8afa5bb45e0eaa4f6f867",
+            bearerAuth: [],
           },
         ],
-        responses: {
-          200: { description: "successful operation" },
-          401: { description: "Unauthorized" },
-          400: { description: "Invalid ID supplied" },
-          404: { description: "user not found" },
-        },
-        security: [{ bearerAuth: [] }],
       },
     },
     "/user/login": {
@@ -254,12 +262,48 @@ const settings = {
             name: "body",
             description: "",
             required: true,
-            schema: { $ref: "#/components/schemas/authorize" },
+            schema: {
+              $ref: "#/components/schemas/authorize",
+            },
           },
         ],
         responses: {
-          400: { description: "Invalid body or id supplied" },
-          422: { description: "Already exists" },
+          400: {
+            description: "Invalid body or id supplied",
+          },
+          422: {
+            description: "Already exists",
+          },
+        },
+      },
+    },
+    "/user/{userId}": {
+      get: {
+        tags: ["user"],
+        summary: "Authorize user",
+        description: "",
+        operationId: "authorizeuser",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "userId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          400: {
+            description: "Invalid body or id supplied",
+          },
+          500: {
+            description: "Internal server error",
+          },
         },
       },
     },
