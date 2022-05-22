@@ -28,7 +28,7 @@ const rules = (cache, number) => {
 
   const weak = [];
   for (let i = 0; i < number; i++) {
-    strong.push(
+    weak.push(
       ...Object.entries(dataWeak).map(([key, value]) =>
         ruleWeak(i, key, value, cache)
       )
@@ -40,7 +40,7 @@ const rules = (cache, number) => {
   return [...strong, ...weak, counters];
 };
 
-// let facts = {
+// let facts = // let facts = {
 //   enemyPokemon: [
 //     { name: "Garchomp", types: ["figth", "ground"] },
 //     { name: "Ludicolo", types: ["water", "grass"] },
@@ -48,7 +48,6 @@ const rules = (cache, number) => {
 //   ],
 //   returnCounters: true,
 // };
-
 // let engine = new Engine(rules(createCache(), 3), config);
 // engine
 //   .run(facts)

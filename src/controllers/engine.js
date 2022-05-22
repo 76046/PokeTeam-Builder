@@ -10,10 +10,12 @@ export const getRule = (req, res) => {
   return res.status(418).end("Jest w pyte");
 };
 
-export const generateTeam = (req, res) => {
+export const generateTeam = async (req, res) => {
   const facts = req.body;
+
   const number = facts.enemyPokemon.length;
   const engine = Expert(number);
 
-  engine.run(facts).then((engine) => res.send());
+  let result = await engine.run(facts);
+  return res.send(result);
 };
