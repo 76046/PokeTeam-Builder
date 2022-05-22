@@ -1,15 +1,45 @@
 import Invitation from "../schemas/invitation.js";
 import User from "../schemas/user.js";
-export const postInvitation = (req, res) => {
-  return res.status(418).end("Not implemented");
+
+export const postInvitation = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const invitation = await Invitation(req.body).save();
+      return res.send(invitation._doc);
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
-export const deleteInvitationById = (req, res) => {
-  return res.status(418).end("Not implemented");
+export const deleteInvitationById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      await Invitation.findByIdAndDelete(req.params.id);
+      return res.status(200).end("Deleted");
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
-export const getInvitationsById = (req, res) => {
-  return res.status(418).end("Not implemented");
+export const getInvitationsById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const invitation = await Invitation.findOne({ _id: req.params.id })
+        .populate("requester", { username: 1, email: 1, _id: 1, friends: 1 })
+        .populate("requestee", { username: 1, email: 1, _id: 1, friends: 1 });
+      return res.send(invitation);
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const getAcceptById = async (req, res) => {
