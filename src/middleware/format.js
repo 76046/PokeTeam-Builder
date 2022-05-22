@@ -18,7 +18,8 @@ export default function formatter(req, res, next) {
 			req.format = yamlFormatter;
 			break;
 		default:
-			res.status(406).end();
+			req.format = jsonFormatter;
+			break;
 	}
 	return next();
 }
