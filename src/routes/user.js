@@ -4,8 +4,6 @@ import auth from "../middleware/auth.js";
 
 const router = Router();
 
-// # == User
-
 router.get("/invitations", auth, controller.getUserInvitations);
 //router.get("/friends", auth, controller.getUserFriends);
 //router.get("/start", auth, controller.getUserStart);
@@ -16,7 +14,7 @@ router.post("/invite", auth, controller.postUserInvite);
 router.post("/login", controller.postUserLogin);
 router.post("/", controller.postUser);
 
-router.patch("/:id", auth, controller.patchUserById);
+router.patch("/", auth, controller.patchUser);
 router.delete("/:id", auth, controller.deleteUserById); // Admin
 
 export default router;

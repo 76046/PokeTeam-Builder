@@ -4,7 +4,6 @@ const schema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
     trim: true,
   },
   team: {
@@ -13,7 +12,7 @@ const schema = new mongoose.Schema({
     required: true,
   },
   alternatives: {
-    type: [mongoose.Schema.Types.ObjectId],
+    type: Object,
     ref: "Team",
     required: true,
   },
@@ -23,13 +22,16 @@ const schema = new mongoose.Schema({
   },
   facts: {
     type: [mongoose.Schema.Types.ObjectId],
-    ref: "Fact",
+    ref: "Pokemon",
     required: true,
   },
   decisions: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Decision",
     required: true,
+  },
+  spectrum: {
+    type: [Object],
   },
 });
 

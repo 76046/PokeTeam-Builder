@@ -13,6 +13,8 @@ import teamRoutes from "./routes/team.js";
 import userRoutes from "./routes/user.js";
 import ruleRoutes from "./routes/rule.js";
 import testingEngine from "./routes/engine.js";
+import swaggerUi from "swagger-ui-express";
+import settings from "./methods/swagger.js";
 
 const port = process.env.PORT ?? 3000;
 
@@ -20,7 +22,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(formatter);
+// app.use(formatter);
 
 app.use("/invitation", invitationRoutes);
 app.use("/move", moveRoutes);
@@ -30,6 +32,16 @@ app.use("/team", teamRoutes);
 app.use("/user", userRoutes);
 app.use("/rule", ruleRoutes);
 app.use("/engine", testingEngine);
+
+app.use(
+  "/",
+  swaggerUi.serve,
+  swaggerUi.setup(settings, {
+    swaggerOptions: {
+      SuuportedSubmitMethods: [],
+    },
+  })
+);
 
 connect()
   .then(() => {

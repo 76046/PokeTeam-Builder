@@ -87,21 +87,18 @@ export const deleteUserById = async (req, res) => {
 	}
 };
 
-export const patchUserById = async (req, res) => {
-	try {
-		if (req.roles.map((e) => e.name).includes("admin")) {
-			await User.findByIdAndUpdate(req.params.id, req.body);
-			const user = await User.findById(req.params.id)
-				.populate("roles")
-				.populate("friends", { username: 1, email: 1, _id: 1 });
-			if (user) return res.send(user);
-			else return res.status(404).end("Not found");
-		}
-		return res.status(401).end("Not authorized");
-	} catch (e) {
-		console.error(e);
-		res.status(500).end();
-	}
+export const patchUser = async (req, res) => {
+  try {
+    await User.findOneAndUpdate({ email: req.email }, req.body);
+    const user = await User.findOne({ email: req.email })
+      .populate("roles")
+      .populate("friends", { username: 1, email: 1, _id: 1 });
+    if (user) return res.send(user);
+    else return res.status(404).end("Not found");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const postUserLogin = async (req, res) => {
