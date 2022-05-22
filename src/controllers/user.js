@@ -4,8 +4,19 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Invitation from "../schemas/invitation.js";
 
-export const getUserById = (req, res) => {
-  return res.status(418).end("Not implemented");
+export const getUserById = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      _id: req.params.id,
+    })
+      .populate("roles")
+      .populate("friends", { username: 1, email: 1, _id: 1 });
+    if (user) return res.send(user);
+    else return res.status(404).end("Not found");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const postUser = async (req, res) => {
@@ -54,15 +65,34 @@ export const postUser = async (req, res) => {
   }
 };
 
-export const deleteUserById = (req, res) => {
-  if (req.roles.map((e) => e.name).includes("admin")) {
-    return res.status(200).end();
+export const deleteUserById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await User.findByIdAndDelete(req.params.id);
+      return res.status(200).end("Deleted");
+    }
+    return res.status(401).end("Not authorized");
+  } catch (err) {
+    console.error(e);
+    res.status(500).end();
   }
-  return res.status(418).end("Not implemented");
 };
 
-export const patchUserById = (req, res) => {
-  return res.status(418).end("Not implemented");
+export const patchUserById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await User.findByIdAndUpdate(req.params.id, req.body);
+      const user = await User.findById(req.params.id)
+        .populate("roles")
+        .populate("friends", { username: 1, email: 1, _id: 1 });
+      if (user) return res.send(user);
+      else return res.status(404).end("Not found");
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const postUserLogin = async (req, res) => {
@@ -106,7 +136,7 @@ export const postUserLogin = async (req, res) => {
   }
 };
 
-export const getUserSummaries = (req, res) => {
+export const getUserSummaries = async (req, res) => {
   return res.status(418).end("Not implemented");
 };
 
