@@ -82,7 +82,7 @@ export function ruleCounters(cache) {
         weak: cache.weakCounter,
       },
     },
-    // do sprawka co robi priority i jak jest ustawiane
+
     priority: 10,
   };
 }
