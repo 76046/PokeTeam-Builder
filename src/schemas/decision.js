@@ -4,7 +4,6 @@ const schema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
     trim: true,
   },
   pokemon: {
@@ -12,9 +11,8 @@ const schema = new mongoose.Schema({
     ref: "Pokemon",
     required: true,
   },
-  rules: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Rule",
+  params: {
+    type: [Object],
     required: true,
   },
 });

@@ -135,7 +135,7 @@ export const postUserLogin = async (req, res) => {
 
 export const getUserSummaries = async (req, res) => {
   return res.status(418).end("Not implemented");
-};
+}; 
 
 export const postUserInvite = async (req, res) => {
   try {

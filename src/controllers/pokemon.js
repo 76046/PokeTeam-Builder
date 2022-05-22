@@ -21,7 +21,8 @@ export const getPokemonById = async (req, res) => {
     })
       .populate("moves")
       .populate("types");
-    return res.send(pokemon);
+    if (pokemon) return res.send(pokemon);
+    else return res.status(404).end("Not found");
   } catch (e) {
     console.error(e);
     res.status(500).end();
@@ -36,7 +37,8 @@ export const patchPokemonById = async (req, res) => {
       const pokemon = await Pokemon.findById(req.params.id)
         .populate("moves")
         .populate("types");
-      return res.send(pokemon);
+      if (pokemon) return res.send(pokemon);
+      else return res.status(404).end("Not found");
     }
     return res.status(401).end("Not authorized");
   } catch (e) {

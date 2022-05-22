@@ -1,5 +1,4 @@
 import { ruleStrong, ruleWeak, ruleCounters } from "./generators.js";
-import { dataStrong, dataWeak } from "./data.js";
 import { Engine } from "json-rules-engine";
 
 const config = {
@@ -16,8 +15,10 @@ const config = {
 //   ruleCounters(cache),
 // ];
 
-const rules = (cache, number) => {
+const createCacheForRules = async (cache, number, dataStrong, dataWeak) => {
   const strong = [];
+  const weak = [];
+
   for (let i = 0; i < number; i++) {
     strong.push(
       ...Object.entries(dataStrong).map(([key, value]) =>
@@ -26,7 +27,6 @@ const rules = (cache, number) => {
     );
   }
 
-  const weak = [];
   for (let i = 0; i < number; i++) {
     weak.push(
       ...Object.entries(dataWeak).map(([key, value]) =>
@@ -35,6 +35,8 @@ const rules = (cache, number) => {
     );
   }
 
+  // console.log(strong);
+  // console.log(weak);
   const counters = ruleCounters(cache);
 
   return [...strong, ...weak, counters];
@@ -53,10 +55,19 @@ const rules = (cache, number) => {
 //   .run(facts)
 //   .then((engine) => console.log(JSON.stringify(engine.events, null, 2)));
 
-export default function Expert(number) {
-  return new Engine(rules(createCache(), number), config);
+export default async function Expert(number, dataStrong, dataWeak) {
+  const rules = await createCacheForRules(
+    createCache(),
+    number,
+    dataStrong,
+    dataWeak
+  );
+  return new Engine(rules, config);
 }
 
 function createCache() {
-  return { strongCounter: {}, weakCounter: {} };
+  return {
+    strongCounter: {},
+    weakCounter: {},
+  };
 }

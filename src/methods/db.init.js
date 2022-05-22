@@ -109,7 +109,6 @@ const init = async () => {
 
     if (res) {
       const data = res.data;
-      const zeroPad = (num, places) => String(num).padStart(places, "0");
 
       let pokemon = {
         name: capitalize(pokemonName),

@@ -13,6 +13,7 @@ export function ruleStrong(id, type, strongTypes, cache) {
     event: {
       type: "strong",
       params: {
+        id: id,
         types: strongTypes,
       },
     },
@@ -46,6 +47,7 @@ export function ruleWeak(id, type, weakTypes, cache) {
     event: {
       type: "weak",
       params: {
+        id: id,
         types: weakTypes,
       },
     },
