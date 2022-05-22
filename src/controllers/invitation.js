@@ -9,6 +9,9 @@ export const postInvitation = async (req, res) => {
     }
     return res.status(401).end("Not authorized");
   } catch (e) {
+    if (e && e.code === 11000) {
+      return res.status(422).end("Already exists");
+    }
     console.error(e);
     res.status(500).end();
   }
@@ -33,6 +36,7 @@ export const getInvitationsById = async (req, res) => {
       const invitation = await Invitation.findOne({ _id: req.params.id })
         .populate("requester", { username: 1, email: 1, _id: 1, friends: 1 })
         .populate("requestee", { username: 1, email: 1, _id: 1, friends: 1 });
+      if (!invitation) return res.status(404).end("Not found");
       return res.send(invitation);
     }
     return res.status(401).end("Not authorized");

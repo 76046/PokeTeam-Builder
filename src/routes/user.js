@@ -7,16 +7,16 @@ const router = Router();
 // # == User
 
 router.get("/invitations", auth, controller.getUserInvitations);
-router.get("/friends", auth, controller.getUserFriends);
-router.get("/start", auth, controller.getUserStart);
-router.get("/summaries", auth, controller.getUserSummaries);
+//router.get("/friends", auth, controller.getUserFriends);
+//router.get("/start", auth, controller.getUserStart);
+//router.get("/summaries", auth, controller.getUserSummaries);
 router.get("/:id", auth, controller.getUserById);
 
 router.post("/invite", auth, controller.postUserInvite);
 router.post("/login", controller.postUserLogin);
 router.post("/", controller.postUser);
 
-router.put("/:id", auth, controller.patchUserById);
+router.patch("/:id", auth, controller.patchUserById);
 router.delete("/:id", auth, controller.deleteUserById); // Admin
 
 export default router;

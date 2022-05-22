@@ -6,7 +6,7 @@ const router = Router();
 
 // # == Move
 
-router.post("/", auth, controller.postMove);
+router.post("/", auth, controller.postMove); // Admin
 router.get("/moves", controller.getMoves);
 router.get("/:id", controller.getMoveById);
 router.patch("/:id", auth, controller.patchMoveById); // Admin
