@@ -16,7 +16,7 @@ router.post("/invite", auth, controller.postUserInvite);
 router.post("/login", controller.postUserLogin);
 router.post("/", controller.postUser);
 
-router.put("/:id", auth, controller.patchUserById);
+router.patch("/", auth, controller.patchUser);
 router.delete("/:id", auth, controller.deleteUserById); // Admin
 
 export default router;
