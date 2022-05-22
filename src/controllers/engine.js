@@ -104,12 +104,13 @@ function returnProccessingData(engineResult, facts, dataStrong, dataWeak) {
   }
   data.enemies = [];
   for (let enemy of facts.enemyPokemon) {
+    var typesStrong = new Set();
+    var typesWeak = new Set();
     for (let t of enemy.types) {
-      data.enemies.push({
-        strong: dataStrong[t],
-        weak: dataWeak[t],
-      });
+      typesStrong.add(dataStrong[t]);
+      typesWeak.add(dataWeak[t]);
     }
+    data.enemies.push({ strong: typesStrong, weak: typesWeak });
   }
   return data;
 }
