@@ -9,7 +9,7 @@ const router = Router();
 router.post("/", auth, controller.postPokemon); // Admin
 router.get("/pokemons", controller.getPokemons);
 router.get("/:id", controller.getPokemonById);
-router.put("/:id", auth, controller.patchPokemonById); // Admin
+router.patch("/:id", auth, controller.patchPokemonById); // Admin
 router.delete("/:id", auth, controller.deletePokemonById); // Admin
 
 export default router;
