@@ -12,7 +12,10 @@ export const getProcessing = (req, res) => {
 
 export const generateTeam = async (req, res) => {
   try {
-    if (!req.body.enemyPokemons || !req.body.name) {
+    if (
+      !Object.keys(req.body).length > 0 ||
+      !Object.keys(req.body).includes("enemyPokemons")
+    ) {
       return res.status(400).end("Invalid data");
     }
     const facts = await findPokemons(req);
@@ -56,7 +59,7 @@ export const generateTeam = async (req, res) => {
 
 async function saveSummary(req, team, facts, processingResult, decisions) {
   const summaryBody = {
-    name: "summary-" + req.body.name,
+    name: "summary-" + new Date() + "-" + req.body.name,
     team: team._doc._id.toString(),
     date: new Date(),
     facts: facts.enemyPokemon,
@@ -99,13 +102,17 @@ function returnProccessingData(engineResult, facts, dataStrong, dataWeak) {
   }
   data.enemies = [];
   for (let enemy of facts.enemyPokemon) {
-    var typesStrong = new Set();
-    var typesWeak = new Set();
+    var typesStrong = [];
+    var typesWeak = [];
     for (let t of enemy.types) {
-      typesStrong.add(dataStrong[t]);
-      typesWeak.add(dataWeak[t]);
+      typesStrong.push(...dataStrong[t]);
+      typesWeak.push(...dataWeak[t]);
     }
-    data.enemies.push({ strong: typesStrong, weak: typesWeak });
+
+    data.enemies.push({
+      strong: [...new Set(typesStrong)],
+      weak: [...new Set(typesWeak)],
+    });
   }
   return data;
 }
