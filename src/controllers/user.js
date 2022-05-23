@@ -1,5 +1,6 @@
 import User from "../schemas/user.js";
 import Role from "../schemas/role.js";
+import Avatar from "../schemas/avatar.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Invitation from "../schemas/invitation.js";
@@ -163,7 +164,7 @@ export const postUserLogin = async (req, res) => {
     delete temp.password;
     delete temp.__v;
 
-    res.send({
+    return res.send({
       user: temp,
       token,
     });
@@ -225,9 +226,13 @@ export const getUserInvitations = async (req, res) => {
       .populate("requester", { username: 1, email: 1, _id: 1 })
       .populate("requestee", { username: 1, email: 1, _id: 1 });
 
+    if (!invitations || !invitations.length > 0) {
+      return res.send(response);
+    }
+
     const requester = invitations
       .filter(
-        (i) => i._doc.requester._doc._id.toString() === user._id.toString()
+        (i) => i._doc?.requester?._doc._id.toString() === user._id.toString()
       )
       .map((i) => i._doc);
 
@@ -237,17 +242,19 @@ export const getUserInvitations = async (req, res) => {
 
     const requestee = invitations
       .filter(
-        (i) => i._doc.requestee._doc._id.toString() === user._id.toString()
+        (i) => i._doc?.requestee?._doc._id.toString() === user._id.toString()
       )
       .map((i) => i._doc);
+
     for (let i = 0; i < requestee.length; i++) {
       delete requestee[i].requestee;
     }
 
     if (requestee) response.received = requestee;
     if (requester) response.sent = requester;
-    res.send(response);
+    return res.send(response);
   } catch (err) {
+    console.error(err);
     return res.status(500).end();
   }
 };
