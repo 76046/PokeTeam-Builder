@@ -1,8 +1,10 @@
 import User from "../schemas/user.js";
 import Role from "../schemas/role.js";
+import Avatar from "../schemas/avatar.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Invitation from "../schemas/invitation.js";
+import mongoose from "mongoose";
 
 export const getUserById = async (req, res) => {
   try {
@@ -163,7 +165,7 @@ export const postUserLogin = async (req, res) => {
     delete temp.password;
     delete temp.__v;
 
-    res.send({
+    return res.send({
       user: temp,
       token,
     });
@@ -225,9 +227,13 @@ export const getUserInvitations = async (req, res) => {
       .populate("requester", { username: 1, email: 1, _id: 1 })
       .populate("requestee", { username: 1, email: 1, _id: 1 });
 
+    if (!invitations || !invitations.length > 0) {
+      return res.send(response);
+    }
+
     const requester = invitations
       .filter(
-        (i) => i._doc.requester._doc._id.toString() === user._id.toString()
+        (i) => i._doc?.requester?._doc._id.toString() === user._id.toString()
       )
       .map((i) => i._doc);
 
@@ -237,16 +243,127 @@ export const getUserInvitations = async (req, res) => {
 
     const requestee = invitations
       .filter(
-        (i) => i._doc.requestee._doc._id.toString() === user._id.toString()
+        (i) => i._doc?.requestee?._doc._id.toString() === user._id.toString()
       )
       .map((i) => i._doc);
+
     for (let i = 0; i < requestee.length; i++) {
       delete requestee[i].requestee;
     }
 
     if (requestee) response.received = requestee;
     if (requester) response.sent = requester;
-    res.send(response);
+    return res.send(response);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).end();
+  }
+};
+
+let gridfsbucket;
+
+mongoose.connection.once("open", () => {
+  gridfsbucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+    chunkSizeBytes: 1024,
+    bucketName: "files",
+  });
+});
+
+export const postAvatar = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      email: req.email,
+    });
+
+    if (!user) return res.status(404).end("Not found");
+    let { file } = req.files;
+    const stream = gridfsbucket.openUploadStream(file.name);
+
+    stream.on("error", function (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .end(`[*] Error while uploading new file, with error: ${error}`);
+    });
+    stream.on("finish", async function (uploadedFile) {
+      const avatar = await new Avatar({
+        userId: user._doc._id,
+        filename: uploadedFile.filename,
+        docId: uploadedFile._id,
+      }).save();
+      return res.send({
+        _id: avatar._doc._id,
+      });
+    });
+
+    stream.write(file.data);
+    stream.end();
+  } catch (err) {
+    return res.status(500).end();
+  }
+};
+
+export const getAvatar = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      email: req.email,
+    });
+
+    if (!user) return res.status(404).end("Not found");
+    const avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
+    let filetype = avatar._doc.filename.split(".").pop();
+    res.set("content-type", "image/" + filetype);
+    res.set(
+      "content-disposition",
+      "attachment; filename=" + avatar._doc.filename
+    );
+    const stream = gridfsbucket.openDownloadStream(avatar._doc.docId);
+    stream.on("error", function (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .end(`[*] Error while dowloading  file, with error: ${error}`);
+    });
+    stream.on("data", (chunk) => {
+      res.write(chunk);
+    });
+    stream.on("end", function () {
+      return res.end();
+    });
+  } catch (err) {
+    return res.status(500).end();
+  }
+};
+
+export const getAvatarById = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const user = await User.findById(req.params.id);
+
+      if (!user) return res.status(404).end("Not found");
+      const avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
+      let filetype = avatar._doc.filename.split(".").pop();
+      res.set("content-type", "image/" + filetype);
+      res.set(
+        "content-disposition",
+        "attachment; filename=" + avatar._doc.filename
+      );
+      const stream = gridfsbucket.openDownloadStream(avatar._doc.docId);
+      stream.on("error", function (error) {
+        console.log(error);
+        return res
+          .status(500)
+          .end(`[*] Error while dowloading  file, with error: ${error}`);
+      });
+      stream.on("data", (chunk) => {
+        res.write(chunk);
+      });
+      stream.on("end", function () {
+        return res.end();
+      });
+    } else {
+      return res.status(401).end("Not authorized");
+    }
   } catch (err) {
     return res.status(500).end();
   }
