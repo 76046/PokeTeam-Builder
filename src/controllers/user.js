@@ -22,11 +22,16 @@ export const getUserById = async (req, res) => {
 export const postUser = async (req, res) => {
   try {
     const tempUsr = req.body;
+    if (!tempUsr || Object.keys(tempUsr).length === 0)
+      return res.status(400).end("Invalid data");
     if (tempUsr.roles) {
       tempUsr.roles = await Role.find().where("name").in(tempUsr.roles).exec();
     } else {
       tempUsr.roles = await Role.find({ name: "user" }).exec();
     }
+
+    if (!tempUsr.password || !tempUsr.email)
+      return res.status(400).end("Incomplete data");
 
     const salt = await bcrypt.genSalt();
     tempUsr.password = await bcrypt.hash(tempUsr.password, salt);
@@ -59,8 +64,11 @@ export const postUser = async (req, res) => {
         token,
       });
     }
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    if (e.name == "ValidationError") {
+      return res.status(422).end("ValidationError");
+    }
+    console.error(e);
     res.status(500).end();
   }
 };
@@ -68,7 +76,8 @@ export const postUser = async (req, res) => {
 export const deleteUserById = async (req, res) => {
   try {
     if (req.roles.map((e) => e.name).includes("admin")) {
-      await User.findByIdAndDelete(req.params.id);
+      const deleteUser = await User.findByIdAndDelete(req.params.id);
+      if (!deleteUser) return res.status(404).end("Not found");
       return res.status(200).end("Deleted");
     }
     return res.status(401).end("Not authorized");
@@ -80,13 +89,44 @@ export const deleteUserById = async (req, res) => {
 
 export const patchUser = async (req, res) => {
   try {
+    if (!Object.keys(req.body).length > 0) {
+      return res.status(400).end("Invalid data");
+    }
+
     await User.findOneAndUpdate({ email: req.email }, req.body);
-    const user = await User.findOne({ email: req.email })
+    const user = await User.findOne({
+      email: Object.keys(req.body).includes("email")
+        ? req.body.email
+        : req.email,
+    })
       .populate("roles")
       .populate("friends", { username: 1, email: 1, _id: 1 });
-    if (user) return res.send(user);
-    else return res.status(404).end("Not found");
+    if (!user) return res.status(404).end("Not found");
+
+    if (
+      Object.keys(req.body).includes("email") ||
+      Object.keys(req.body).includes("roles")
+    ) {
+      const payload = {
+        email: user.email,
+        roles: user.roles,
+      };
+      const SECRET = process.env.TOKEN_SECRET;
+      const token = jwt.sign(payload, SECRET, {
+        expiresIn: "1d",
+      });
+      if (!token) return res.status(400).end("Cannot create new token");
+      return res.send({ user: user, token: token });
+    }
+
+    return res.send({ user: user });
   } catch (e) {
+    if (err && err.code === 11000) {
+      return res.status(422).end("Already exists");
+    }
+    if (e.name == "ValidationError") {
+      return res.status(422).end("ValidationError");
+    }
     console.error(e);
     res.status(500).end();
   }
@@ -123,7 +163,7 @@ export const postUserLogin = async (req, res) => {
     delete temp.password;
     delete temp.__v;
 
-    res.send({
+    return res.send({
       user: temp,
       token,
     });
@@ -185,9 +225,13 @@ export const getUserInvitations = async (req, res) => {
       .populate("requester", { username: 1, email: 1, _id: 1 })
       .populate("requestee", { username: 1, email: 1, _id: 1 });
 
+    if (!invitations || !invitations.length > 0) {
+      return res.send(response);
+    }
+
     const requester = invitations
       .filter(
-        (i) => i._doc.requester._doc._id.toString() === user._id.toString()
+        (i) => i._doc?.requester?._doc._id.toString() === user._id.toString()
       )
       .map((i) => i._doc);
 
@@ -197,17 +241,19 @@ export const getUserInvitations = async (req, res) => {
 
     const requestee = invitations
       .filter(
-        (i) => i._doc.requestee._doc._id.toString() === user._id.toString()
+        (i) => i._doc?.requestee?._doc._id.toString() === user._id.toString()
       )
       .map((i) => i._doc);
+
     for (let i = 0; i < requestee.length; i++) {
       delete requestee[i].requestee;
     }
 
     if (requestee) response.received = requestee;
     if (requester) response.sent = requester;
-    res.send(response);
+    return res.send(response);
   } catch (err) {
+    console.error(err);
     return res.status(500).end();
   }
 };

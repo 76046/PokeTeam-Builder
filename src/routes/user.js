@@ -4,12 +4,10 @@ import auth from "../middleware/auth.js";
 
 const router = Router();
 
-// # == User
-
 router.get("/invitations", auth, controller.getUserInvitations);
-router.get("/friends", auth, controller.getUserFriends);
-router.get("/start", auth, controller.getUserStart);
-router.get("/summaries", auth, controller.getUserSummaries);
+//router.get("/friends", auth, controller.getUserFriends);
+//router.get("/start", auth, controller.getUserStart);
+//router.get("/summaries", auth, controller.getUserSummaries);
 router.get("/:id", auth, controller.getUserById);
 
 router.post("/invite", auth, controller.postUserInvite);

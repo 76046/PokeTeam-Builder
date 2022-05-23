@@ -3,8 +3,6 @@ import mongoose from "mongoose";
 const schema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    unique: true,
     trim: true,
   },
   team: {
@@ -13,22 +11,30 @@ const schema = new mongoose.Schema({
     required: true,
   },
   alternatives: {
-    type: [mongoose.Schema.Types.ObjectId],
+    type: Object,
     ref: "Team",
     required: true,
   },
   date: {
-    type: Date,
+    type: String,
     required: true,
   },
   facts: {
     type: [mongoose.Schema.Types.ObjectId],
-    ref: "Fact",
+    ref: "Pokemon",
     required: true,
   },
   decisions: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Decision",
+    required: true,
+  },
+  spectrum: {
+    type: [Object],
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
 });
