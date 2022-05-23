@@ -248,12 +248,67 @@ const settings = {
         ],
       },
     },
+    "/user/invitations": {
+      get: {
+        tags: ["user"],
+        summary: "Get User Invitations",
+        description: "",
+        operationId: "getuserinvitations",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/authorize",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+        },
+      },
+    },
+    "/user/invite": {
+      post: {
+        tags: ["user"],
+        summary: "Post User Invite",
+        description: "",
+        operationId: "postuserinvite",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/authorize",
+            },
+          },
+        ],
+        responses: {
+          400: {
+            description: "You are requestee",
+          },
+          404: {
+            description: "Requestee not found",
+          },
+        },
+      },
+    },
     "/user/login": {
       post: {
         tags: ["user"],
-        summary: "Authorize user",
+        summary: "Post User Login",
         description: "",
-        operationId: "authorizeuser",
+        operationId: "postuserlogin",
         consumes: ["application/json", "application/xml"],
         produces: [" text/plain"],
         parameters: [
@@ -280,9 +335,9 @@ const settings = {
     "/user/{userId}": {
       get: {
         tags: ["user"],
-        summary: "Authorize user",
+        summary: "Get User By Id",
         description: "",
-        operationId: "authorizeuser",
+        operationId: "getuserbyid",
         consumes: ["application/json", "application/xml"],
         produces: ["application/json"],
         parameters: [
@@ -303,6 +358,901 @@ const settings = {
           },
           500: {
             description: "Internal server error",
+          },
+        },
+      },
+      delete: {
+        tags: ["user"],
+        summary: "Delete User By Id",
+        description: "",
+        operationId: "deleteuserbyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "userId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+    },
+    "/team": {
+      post: {
+        tags: ["team"],
+        summary: "post team",
+        description: "",
+        operationId: "postteam",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/team",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    "/team/{teams}": {
+      get: {
+        tags: ["team"],
+        summary: "Get team",
+        description: "",
+        operationId: "getteam",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "team",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/team/{teamId}": {
+      get: {
+        tags: ["team"],
+        summary: "Get Team By Id",
+        description: "",
+        operationId: "getteambyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "teamId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+      patch: {
+        tags: ["team"],
+        summary: "Patch Team By Id",
+        description: "",
+        operationId: "patchteambyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "teamId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+      delete: {
+        tags: ["team"],
+        summary: "Delete Team By Id",
+        description: "",
+        operationId: "deleteteambyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "teamId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/summary": {
+      post: {
+        tags: ["summary"],
+        summary: "Post Summary",
+        description: "",
+        operationId: "postsummary",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/summary",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/summary/{summaries}": {
+      get: {
+        tags: ["summary"],
+        summary: "Get Summaries",
+        description: "",
+        operationId: "getsummaries",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "summary",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/summary/{summaryId}": {
+      get: {
+        tags: ["summary"],
+        summary: "Get Summary By Id",
+        description: "",
+        operationId: "getsummarybyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "summaryId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+      patch: {
+        tags: ["summary"],
+        summary: "Patch Summary By Id",
+        description: "",
+        operationId: "patchsummarybyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "summaryId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+      delete: {
+        tags: ["summary"],
+        summary: "Delete Summary By Id",
+        description: "",
+        operationId: "deletesummarybyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "summaryId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/rule": {
+      post: {
+        tags: ["rule"],
+        summary: "Post Rule",
+        description: "",
+        operationId: "postrule",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/rule",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          201: {
+            description: "Created",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          422: {
+            description: "Already exists",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/rule/{rules}": {
+      get: {
+        tags: ["rule"],
+        summary: "Get Rules",
+        description: "",
+        operationId: "getrules",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "rule",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+    },
+    "/rule/{ruleId}": {
+      get: {
+        tags: ["rule"],
+        summary: "Get Rule By Id",
+        description: "",
+        operationId: "getrulebyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "ruleId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+      patch: {
+        tags: ["rule"],
+        summary: "Patch Rule By Id",
+        description: "",
+        operationId: "patchrulebyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "ruleId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+      delete: {
+        tags: ["rule"],
+        summary: "Delete Rule By Id",
+        description: "",
+        operationId: "deleterulebyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "ruleId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/move": {
+      post: {
+        tags: ["move"],
+        summary: "Post Move",
+        description: "",
+        operationId: "postmove",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/move",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/move/{moves}": {
+      get: {
+        tags: ["moves"],
+        summary: "Get Moves",
+        description: "",
+        operationId: "getmoves",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "move",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+    },
+    "/move/{moveId}": {
+      get: {
+        tags: ["move"],
+        summary: "Get Move By Id",
+        description: "",
+        operationId: "getmovebyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "moveId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+      patch: {
+        tags: ["move"],
+        summary: "Patch Move By Id",
+        description: "",
+        operationId: "patchmovebyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "moveId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+      delete: {
+        tags: ["move"],
+        summary: "Delete Move By Id",
+        description: "",
+        operationId: "deletemovebyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "moveId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/invitation": {
+      post: {
+        tags: ["invitation"],
+        summary: "Post Invitation",
+        description: "",
+        operationId: "postinvitation",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "pokemon object that needs to be added to the service",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/invitation",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/invitation/{invitationId}": {
+      get: {
+        tags: ["invitation"],
+        summary: "Get Invitations By Id",
+        description: "",
+        operationId: "getinvitationsbyd",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "invitationId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+      delete: {
+        tags: ["invitation"],
+        summary: "Delete Invitation By Id",
+        description: "",
+        operationId: "deleteinvitationbyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "invitationId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/invitation/accept/{invitationId}": {
+      get: {
+        tags: ["invitation"],
+        summary: "Get Accept By Id",
+        description: "",
+        operationId: "getacceptbyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "invitationId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          404: {
+            description: "Not Found",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    "/invitation/reject/{invitationId}": {
+      get: {
+        tags: ["invitation"],
+        summary: "Get Reject By Id",
+        description: "",
+        operationId: "getrejectbyid",
+        consumes: ["application/json", "application/xml"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "invitationId",
+            in: "path",
+            required: true,
+            type: "string",
+            example: "61d8afa5bb45e0eaa4f6f867",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
+          },
+          401: {
+            description: "Not authorized",
+          },
+          404: {
+            description: "Not found",
+          },
+          500: {
+            description: "Internal server error",
+          },
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+        },
+      },
+    },
+    "/engine/team": {
+      post: {
+        tags: ["engine"],
+        summary: "Generate Team",
+        description: "",
+        operationId: "generateteam",
+        consumes: ["application/json", "application/xml"],
+        produces: [" text/plain"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "",
+            required: true,
+            schema: {
+              $ref: "#/components/schemas/engine",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Success",
           },
         },
       },
