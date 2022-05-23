@@ -1,76 +1,90 @@
 import Summary from "../schemas/summary.js";
+import User from "../schemas/user.js";
+import Team from "../schemas/team.js";
 
 export const postSummary = async (req, res) => {
-	try {
-		if (req.roles.map((e) => e.name).includes("user")) {
-			const summary = await Summary(req.body).save();
-			if (!summary) return res.status(404).end("Not found");
-			return res.send(summary._doc);
-		}
-		return res.status(401).end("Not authorized");
-	} catch (e) {
-		if (e.name == "ValidationError") {
-			return res.status(422).end("ValidationError");
-		}
-		console.error(e);
-		res.status(500).end();
-	}
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const summary = await Summary(req.body).save();
+      if (!summary) return res.status(404).end("Not found");
+      return res.send(summary._doc);
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    if (e.name == "ValidationError") {
+      return res.status(422).end("ValidationError");
+    }
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const getSummaryById = async (req, res) => {
-	try {
-		if (req.roles.map((e) => e.name).includes("user")) {
-			const summary = await Summary.findOne({
-				_id: req.params.id,
-			});
-			if (!summary) return res.status(404).end("Not found");
-			return res.send(summary);
-		}
-		return res.status(401).end("Not authorized");
-	} catch (e) {
-		console.error(e);
-		res.status(500).end();
-	}
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const summary = await Summary.findOne({
+        _id: req.params.id,
+      });
+      if (!summary) return res.status(404).end("Not found");
+      return res.send(summary);
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const patchSummaryById = async (req, res) => {
-	try {
-		if (req.roles.map((e) => e.name).includes("admin")) {
-			await Summary.findByIdAndUpdate(req.params.id, req.body);
-			const summary = await Summary.findById(req.params.id);
-			if (!summary) return res.status(404).end("Not found");
-			return res.send(summary);
-		}
-		return res.status(401).end("Not authorized");
-	} catch (e) {
-		if (e.name == "ValidationError") {
-			return res.status(422).end("ValidationError");
-		}
-		console.error(e);
-		res.status(500).end();
-	}
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      await Summary.findByIdAndUpdate(req.params.id, req.body);
+      const summary = await Summary.findById(req.params.id);
+      if (!summary) return res.status(404).end("Not found");
+      return res.send(summary);
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    if (e.name == "ValidationError") {
+      return res.status(422).end("ValidationError");
+    }
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const deleteSummaryById = async (req, res) => {
-	try {
-		if (req.roles.map((e) => e.name).includes("admin")) {
-			const summary = await Summary.findByIdAndDelete(req.params.id);
-			if (!summary) return res.status(404).end("Not found");
-			return res.status(200).end("Deleted");
-		}
-		return res.status(401).end("Not authorized");
-	} catch (e) {
-		console.error(e);
-		res.status(500).end();
-	}
+  try {
+    if (req.roles.map((e) => e.name).includes("admin")) {
+      const summary = await Summary.findByIdAndDelete(req.params.id);
+      if (!summary) return res.status(404).end("Not found");
+      return res.status(200).end("Deleted");
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };
 
 export const getSummaries = async (req, res) => {
-	try {
-		const summaries = await Summary.find().populate("type");
-		return res.send(summaries);
-	} catch (e) {
-		console.error(e);
-		res.status(500).end();
-	}
+  try {
+    const user = await User.findOne({
+      email: req.email,
+    });
+    if (!user) return res.status(404).end("Not found");
+    let summaries = await Summary.find({ user: user._doc._id })
+      .populate("facts")
+      .populate("decisions");
+    let result = [];
+    for (let s of summaries) {
+      const t = await Team.findById(s._doc.team._id).populate("pokemons");
+      s._doc.team = t._doc;
+      result.push(s._doc);
+    }
+    return res.send(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
 };

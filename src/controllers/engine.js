@@ -5,6 +5,8 @@ import Team from "../schemas/team.js";
 import Decision from "../schemas/decision.js";
 import getRuleParams from "../methods/db.getRuleParams.js";
 import Summary from "../schemas/summary.js";
+import User from "../schemas/user.js";
+import moment from "moment";
 
 export const getProcessing = (req, res) => {
   processing();
@@ -18,6 +20,12 @@ export const generateTeam = async (req, res) => {
     ) {
       return res.status(400).end("Invalid data");
     }
+
+    const user = await User.findOne({
+      email: req.email,
+    });
+    if (!user) return res.status(400).end("Invalid data");
+
     const facts = await findPokemons(req);
     const ruleParams = await getRuleParams();
     let dataStrong = extractRule(ruleParams, "dataStrong");
@@ -38,13 +46,17 @@ export const generateTeam = async (req, res) => {
       team,
       facts,
       processingResult,
-      decisions
+      decisions,
+      user
     );
     let result = await Summary.findById(summary._id)
-      .populate("team")
       .populate("facts")
       .populate("decisions");
-    return res.send(result);
+    const t = await Team.findById(team._doc._id).populate("pokemons");
+
+    let s = result._doc;
+    s["team"] = t._doc;
+    return res.send(s);
   } catch (e) {
     if (e && e.code === 11000) {
       return res.status(422).end("Already exists");
@@ -57,11 +69,21 @@ export const generateTeam = async (req, res) => {
   }
 };
 
-async function saveSummary(req, team, facts, processingResult, decisions) {
+async function saveSummary(
+  req,
+  team,
+  facts,
+  processingResult,
+  decisions,
+  user
+) {
   const summaryBody = {
-    name: "summary-" + new Date() + "-" + req.body.name,
+    name: req.body.name
+      ? req.body.name
+      : "summary-" + moment(new Date()).format("DD-MM-YYYY"),
     team: team._doc._id.toString(),
-    date: new Date(),
+    date: moment(new Date()).format("YYYY/MM/DD"),
+    user: user._doc._id.toString(),
     facts: facts.enemyPokemon,
     alternatives: processingResult.alternatives,
     spectrum: processingResult.spectrum,

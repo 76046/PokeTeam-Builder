@@ -16,7 +16,7 @@ const schema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: Date,
+    type: String,
     required: true,
   },
   facts: {
@@ -31,6 +31,11 @@ const schema = new mongoose.Schema({
   },
   spectrum: {
     type: [Object],
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
 });
 

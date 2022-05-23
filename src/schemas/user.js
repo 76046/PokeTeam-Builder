@@ -29,12 +29,6 @@ const schema = new mongoose.Schema({
     ref: "Role",
     required: false,
   },
-  summaries: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Summary",
-    default: [],
-    required: false,
-  },
   friends: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "User",

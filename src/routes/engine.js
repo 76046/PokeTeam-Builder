@@ -7,6 +7,6 @@ const router = Router();
 // # == User
 
 router.get("/processing", controller.getProcessing);
-router.post("/team", controller.generateTeam);
+router.post("/team", auth, controller.generateTeam);
 
 export default router;
