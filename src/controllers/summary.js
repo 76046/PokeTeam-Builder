@@ -24,9 +24,16 @@ export const getSummaryById = async (req, res) => {
     if (req.roles.map((e) => e.name).includes("user")) {
       const summary = await Summary.findOne({
         _id: req.params.id,
-      });
+      })
+        .populate("facts")
+        .populate("decisions");
       if (!summary) return res.status(404).end("Not found");
-      return res.send(summary);
+
+      const t = await Team.findById(summary._doc.team._id).populate("pokemons");
+      let result = summary._doc;
+      result.team = t._doc;
+
+      return res.send(result);
     }
     return res.status(401).end("Not authorized");
   } catch (e) {
@@ -55,7 +62,7 @@ export const patchSummaryById = async (req, res) => {
 
 export const deleteSummaryById = async (req, res) => {
   try {
-    if (req.roles.map((e) => e.name).includes("admin")) {
+    if (req.roles.map((e) => e.name).includes("user")) {
       const summary = await Summary.findByIdAndDelete(req.params.id);
       if (!summary) return res.status(404).end("Not found");
       return res.status(200).end("Deleted");
