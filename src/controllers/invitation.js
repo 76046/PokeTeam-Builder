@@ -70,10 +70,8 @@ export const getAcceptById = async (req, res) => {
         { _id: requestee._id },
         { friends: requestee.friends }
       );
-      await Invitation.findOneAndUpdate(
-        { _id: invitation._doc._id },
-        { status: "ACCEPTED" }
-      );
+
+      await Invitation.findByIdAndDelete(invitation._doc._id);
       return res.status(200).end();
     }
     return res.status(404).end("Not found");
