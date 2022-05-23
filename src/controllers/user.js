@@ -1,6 +1,5 @@
 import User from "../schemas/user.js";
 import Role from "../schemas/role.js";
-import Avatar from "../schemas/avatar.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Invitation from "../schemas/invitation.js";
