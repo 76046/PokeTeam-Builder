@@ -140,8 +140,7 @@ export const getSummaries = async (req, res) => {
     if (!user) return res.status(404).end("Not found");
     let summaries = await Summary.find({ user: user._doc._id })
       .populate("facts")
-      .populate("decisions")
-      .populate("user");
+      .populate("decisions");
 
     let result = [];
     for (let s of summaries) {
@@ -163,7 +162,8 @@ export const getSummariesForUser = async (req, res) => {
       if (!user) return res.status(404).end("Not found");
       let summaries = await Summary.find({ user: user._doc._id, public: true })
         .populate("facts")
-        .populate("decisions");
+        .populate("decisions")
+        .populate("user");
       let result = [];
       for (let s of summaries) {
         const t = await Team.findById(s._doc.team._id).populate("pokemons");
