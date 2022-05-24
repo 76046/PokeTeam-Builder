@@ -256,6 +256,40 @@ export const getUserInvitations = async (req, res) => {
   }
 };
 
+export const getUnfriendUser = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      email: req.email,
+    });
+    if (!user) return res.status(404).end("User not found");
+    const toUnfriend = await User.findById(req.params.id);
+    if (!toUnfriend) return res.status(404).end("Friend not found");
+
+    if (user._doc.friends.includes(toUnfriend._doc._id)) {
+      const newFriends = user._doc.friends.filter(
+        (id) => id != toUnfriend._doc._id
+      );
+      await User.findOneAndUpdate(
+        { email: req.email },
+        { friends: newFriends }
+      );
+    }
+    if (toUnfriend._doc.friends.includes(user._doc._id)) {
+      const newFriends2 = toUnfriend._doc.friends.filter(
+        (id) => id != user._doc._id
+      );
+      await User.findOneAndUpdate(
+        { email: toUnfriend._doc.email },
+        { friends: newFriends2 }
+      );
+    }
+    return res.status(200).end("Done");
+  } catch (err) {
+    console.error(err);
+    return res.status(500).end();
+  }
+};
+
 let gridfsbucket;
 
 mongoose.connection.once("open", () => {
@@ -308,7 +342,7 @@ export const getAvatar = async (req, res) => {
     if (!user) return res.status(404).end("Not found");
     let avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
     if (!avatar) {
-      avatar = await Avatar.findById("628ccbb26d730a0ee8cd770a");
+      avatar = await Avatar.findOne({ filename: "pokeball.png" });
     }
     let filetype = avatar._doc.filename.split(".").pop();
     res.set("content-type", "image/" + filetype);
@@ -338,7 +372,7 @@ export const getAvatarById = async (req, res) => {
       if (!user) return res.status(404).end("Not found");
       let avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
       if (!avatar) {
-        avatar = await Avatar.findById("628ccbb26d730a0ee8cd770a");
+        avatar = await Avatar.findOne({ filename: "pokeball.png" });
       }
       let filetype = avatar._doc.filename.split(".").pop();
       res.set("content-type", "image/" + filetype);
