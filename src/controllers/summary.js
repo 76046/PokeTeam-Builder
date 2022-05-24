@@ -1,13 +1,37 @@
 import Summary from "../schemas/summary.js";
 import User from "../schemas/user.js";
 import Team from "../schemas/team.js";
+import Decision from "../schemas/decision.js";
 
 export const postSummary = async (req, res) => {
   try {
     if (req.roles.map((e) => e.name).includes("user")) {
-      const summary = await Summary(req.body).save();
-      if (!summary) return res.status(404).end("Not found");
-      return res.send(summary._doc);
+      const user = await User.findOne({
+        email: req.email,
+      });
+      let s = req.body;
+      let decisions = [];
+      for (let d of s.decisions) {
+        let decision = await new Decision(d).save();
+        decisions.push(decision._doc._id);
+      }
+
+      const team = await new Team(s.team).save();
+      s.team = team._doc._id;
+      s.user = user._doc._id;
+      s.decisions = decisions;
+      const summary = await Summary(s).save();
+      const summ = await Summary.findOne({
+        _id: summary._doc._id,
+      })
+        .populate("facts")
+        .populate("decisions");
+      if (!summ) return res.status(404).end("Not found");
+      const t = await Team.findById(summ._doc.team._id).populate("pokemons");
+      let result = summ._doc;
+      result.team = t._doc;
+
+      return res.send(result);
     }
     return res.status(401).end("Not authorized");
   } catch (e) {
