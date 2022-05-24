@@ -40,7 +40,7 @@ app.use("/rule", ruleRoutes);
 app.use("/engine", testingEngine);
 
 app.use(
-  "/",
+  "/docs",
   swaggerUi.serve,
   swaggerUi.setup(settings, {
     swaggerOptions: {
