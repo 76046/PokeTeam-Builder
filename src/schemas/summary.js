@@ -3,12 +3,15 @@ import mongoose from "mongoose";
 const schema = new mongoose.Schema({
   name: {
     type: String,
-    trim: true,
   },
   team: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Team",
     required: true,
+  },
+  public: {
+    type: Boolean,
+    default: false,
   },
   alternatives: {
     type: Object,

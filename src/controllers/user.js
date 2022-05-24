@@ -175,10 +175,6 @@ export const postUserLogin = async (req, res) => {
   }
 };
 
-export const getUserSummaries = async (req, res) => {
-  return res.status(418).end("Not implemented");
-};
-
 export const postUserInvite = async (req, res) => {
   try {
     const requester = await User.findOne({
@@ -368,18 +364,6 @@ export const getAvatarById = async (req, res) => {
     console.error(err);
     return res.status(500).end();
   }
-};
-
-export const getUserFriends = (req, res) => {
-  return res.status(418).end("Not implemented");
-};
-
-export const postUserAccept = (req, res) => {
-  return res.status(418).end("Not implemented");
-};
-
-export const getUserStart = (req, res) => {
-  return res.status(418).end("Not implemented");
 };
 
 export const verifyToken = async (req, res) => {

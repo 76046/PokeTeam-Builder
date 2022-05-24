@@ -21,42 +21,32 @@ export const generateTeam = async (req, res) => {
       return res.status(400).end("Invalid data");
     }
 
-    const user = await User.findOne({
-      email: req.email,
-    });
-    if (!user) return res.status(400).end("Invalid data");
-
     const facts = await findPokemons(req);
     const ruleParams = await getRuleParams();
     let dataStrong = extractRule(ruleParams, "dataStrong");
     let dataWeak = extractRule(ruleParams, "dataWeak");
-    let decisions = [];
 
     const number = facts.enemyPokemon.length;
     const engine = await Expert(number, dataStrong, dataWeak);
     let engineResult = await engine.run(facts);
-    buildDecisions(engineResult, facts, decisions);
 
     let data = returnProccessingData(engineResult, facts, dataStrong, dataWeak);
     let pokemonsMap = await createPokemonsMap();
     let processingResult = processing(data, pokemonsMap);
-    const team = await saveTeam(processingResult, req);
-    const summary = await saveSummary(
-      req,
-      team,
-      facts,
-      processingResult,
-      decisions,
-      user
-    );
-    let result = await Summary.findById(summary._id)
-      .populate("facts")
-      .populate("decisions");
-    const t = await Team.findById(team._doc._id).populate("pokemons");
 
-    let s = result._doc;
-    s["team"] = t._doc;
-    return res.send(s);
+    if (req.email) {
+      let s = await serialize(req, engineResult, facts, processingResult);
+      return res.send(s);
+    } else {
+      const summaryBody = await buildRawResponse(
+        engineResult,
+        facts,
+        processingResult,
+        req
+      );
+
+      return res.send(summaryBody);
+    }
   } catch (e) {
     if (e && e.code === 11000) {
       return res.status(422).end("Already exists");
@@ -65,9 +55,70 @@ export const generateTeam = async (req, res) => {
       return res.status(422).end("ValidationError");
     }
     console.error(e);
-    res.status(500).end();
+    return res.status(500).end();
   }
 };
+
+async function serialize(req, engineResult, facts, processingResult) {
+  const user = await User.findOne({
+    email: req.email,
+  });
+  let decisions = [];
+  buildDecisions(engineResult, facts, decisions);
+  const team = await saveTeam(processingResult, req);
+  const summary = await saveSummary(
+    req,
+    team,
+    facts,
+    processingResult,
+    decisions,
+    user
+  );
+  let result = await Summary.findById(summary._id)
+    .populate("facts")
+    .populate("decisions");
+  const t = await Team.findById(team._doc._id).populate("pokemons");
+
+  let s = result._doc;
+  s["team"] = t._doc;
+  return s;
+}
+
+async function buildRawResponse(engineResult, facts, processingResult, req) {
+  let decisions = [];
+  for (let event of engineResult.events) {
+    let pokemon = facts.enemyPokemon[event.params.id];
+    if (pokemon && pokemon._id) {
+      let decision = {
+        name: event.type,
+        pokemon: pokemon._id.toString(),
+        params: {
+          types: event.params.types,
+        },
+      };
+      decisions.push(decision);
+    }
+  }
+  let teamBody = await returnTeamBody(processingResult);
+  const team = {
+    pokemons: teamBody,
+    name: req.body.name,
+  };
+
+  const summaryBody = {
+    name: req.body.name
+      ? req.body.name
+      : "summary-" + moment(new Date()).format("DD-MM-YYYY"),
+    team: team,
+    date: moment(new Date()).format("YYYY/MM/DD"),
+    facts: facts.enemyPokemon,
+    alternatives: processingResult.alternatives,
+    spectrum: processingResult.spectrum,
+    decisions: decisions,
+    public: req.body.public ? req.body.public : false,
+  };
+  return summaryBody;
+}
 
 async function saveSummary(
   req,
@@ -88,6 +139,7 @@ async function saveSummary(
     alternatives: processingResult.alternatives,
     spectrum: processingResult.spectrum,
     decisions: decisions,
+    public: req.body.public ? req.body.public : false,
   };
   const summary = await new Summary(summaryBody).save();
   return summary;
@@ -98,7 +150,6 @@ async function saveTeam(processingResult, req) {
   const team = await new Team({
     pokemons: teamBody,
     name: req.body.name,
-    public: req.body.public ? req.body.public : false,
   }).save();
   return team;
 }

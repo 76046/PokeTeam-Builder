@@ -42,9 +42,43 @@ export const getSummaryById = async (req, res) => {
   }
 };
 
+export const getSwichPublic = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const user = await User.findOne({
+        email: req.email,
+      });
+      const summary = await Summary.findOne({
+        user: user._doc._id.toString(),
+        _id: req.params.id,
+      })
+        .populate("facts")
+        .populate("decisions");
+      if (!summary) return res.status(404).end("Not found");
+      await Summary.findByIdAndUpdate(req.params.id, {
+        public: !summary._doc.public,
+      });
+      const s = await Summary.findOne({
+        _id: req.params.id,
+      })
+        .populate("facts")
+        .populate("decisions");
+      const t = await Team.findById(s._doc.team._id).populate("pokemons");
+      let result = s._doc;
+      result.team = t._doc;
+
+      return res.send(result);
+    }
+    return res.status(401).end("Not authorized");
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
+
 export const patchSummaryById = async (req, res) => {
   try {
-    if (req.roles.map((e) => e.name).includes("admin")) {
+    if (req.roles.map((e) => e.name).includes("user")) {
       await Summary.findByIdAndUpdate(req.params.id, req.body);
       const summary = await Summary.findById(req.params.id);
       if (!summary) return res.status(404).end("Not found");
@@ -76,7 +110,7 @@ export const deleteSummaryById = async (req, res) => {
 
 export const getSummaries = async (req, res) => {
   try {
-    const user = await User.findOne({
+    const user = await User.findById({
       email: req.email,
     });
     if (!user) return res.status(404).end("Not found");
@@ -90,6 +124,29 @@ export const getSummaries = async (req, res) => {
       result.push(s._doc);
     }
     return res.send(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
+
+export const getSummariesForUser = async (req, res) => {
+  try {
+    if (req.roles.map((e) => e.name).includes("user")) {
+      const user = await User.findById(req.params.id);
+      if (!user) return res.status(404).end("Not found");
+      let summaries = await Summary.find({ user: user._doc._id, public: true })
+        .populate("facts")
+        .populate("decisions");
+      let result = [];
+      for (let s of summaries) {
+        const t = await Team.findById(s._doc.team._id).populate("pokemons");
+        s._doc.team = t._doc;
+        result.push(s._doc);
+      }
+      return res.send(result);
+    }
+    return res.status(401).end("Not authorized");
   } catch (e) {
     console.error(e);
     res.status(500).end();

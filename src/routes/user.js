@@ -5,9 +5,6 @@ import auth from "../middleware/auth.js";
 const router = Router();
 
 router.get("/invitations", auth, controller.getUserInvitations);
-//router.get("/friends", auth, controller.getUserFriends);
-//router.get("/start", auth, controller.getUserStart);
-//router.get("/summaries", auth, controller.getUserSummaries);
 router.get("/avatar", auth, controller.getAvatar);
 router.get("/avatar/:id", auth, controller.getAvatarById);
 router.get("/:id", auth, controller.getUserById);
