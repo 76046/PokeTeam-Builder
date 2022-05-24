@@ -366,33 +366,29 @@ export const getAvatar = async (req, res) => {
 
 export const getAvatarById = async (req, res) => {
   try {
-    if (req.roles.map((e) => e.name).includes("user")) {
-      const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id);
 
-      if (!user) return res.status(404).end("Not found");
-      let avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
-      if (!avatar) {
-        avatar = await Avatar.findOne({ filename: "pokeball.png" });
-      }
-      let filetype = avatar._doc.filename.split(".").pop();
-      res.set("content-type", "image/" + filetype);
-
-      const stream = gridfsbucket.openDownloadStream(avatar._doc.docId);
-      stream.on("error", function (error) {
-        console.log(error);
-        return res
-          .status(500)
-          .end(`[*] Error while dowloading  file, with error: ${error}`);
-      });
-      stream.on("data", (chunk) => {
-        res.write(chunk);
-      });
-      stream.on("end", function () {
-        return res.end();
-      });
-    } else {
-      return res.status(401).end("Not authorized");
+    if (!user) return res.status(404).end("Not found");
+    let avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
+    if (!avatar) {
+      avatar = await Avatar.findOne({ filename: "pokeball.png" });
     }
+    let filetype = avatar._doc.filename.split(".").pop();
+    res.set("content-type", "image/" + filetype);
+
+    const stream = gridfsbucket.openDownloadStream(avatar._doc.docId);
+    stream.on("error", function (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .end(`[*] Error while dowloading  file, with error: ${error}`);
+    });
+    stream.on("data", (chunk) => {
+      res.write(chunk);
+    });
+    stream.on("end", function () {
+      return res.end();
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).end();

@@ -7,7 +7,7 @@ const router = Router();
 router.get("/invitations", auth, controller.getUserInvitations);
 router.get("/avatar", auth, controller.getAvatar);
 router.get("/unfriend/:id", auth, controller.getUnfriendUser);
-router.get("/avatar/:id", auth, controller.getAvatarById);
+router.get("/avatar/:id",  controller.getAvatarById);
 router.get("/:id", auth, controller.getUserById);
 
 router.post("/invite", auth, controller.postUserInvite);
