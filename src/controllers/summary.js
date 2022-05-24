@@ -102,13 +102,19 @@ export const getSwichPublic = async (req, res) => {
 
 export const patchSummaryById = async (req, res) => {
   try {
-    if (req.roles.map((e) => e.name).includes("user")) {
-      await Summary.findByIdAndUpdate(req.params.id, req.body);
-      const summary = await Summary.findById(req.params.id);
-      if (!summary) return res.status(404).end("Not found");
-      return res.send(summary);
-    }
-    return res.status(401).end("Not authorized");
+    const user = await User.findOne({
+      email: req.email,
+    });
+    if (!user) return res.status(404).end("Not found");
+    let newName = req.body.name;
+    if (!newName) return res.status(400).end("Invalid data");
+    await Summary.findOneAndUpdate(
+      { user: user._doc._id, _id: req.params.id },
+      { name: newName }
+    );
+    const summary = await Summary.findById(req.params.id);
+    if (!summary) return res.status(404).end("Not found");
+    return res.send(summary);
   } catch (e) {
     if (e.name == "ValidationError") {
       return res.status(422).end("ValidationError");
