@@ -306,13 +306,12 @@ export const getAvatar = async (req, res) => {
     });
 
     if (!user) return res.status(404).end("Not found");
-    const avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
+    let avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
+    if (!avatar) {
+      avatar = await Avatar.findById("628ccbb26d730a0ee8cd770a");
+    }
     let filetype = avatar._doc.filename.split(".").pop();
     res.set("content-type", "image/" + filetype);
-    res.set(
-      "content-disposition",
-      "attachment; filename=" + avatar._doc.filename
-    );
     const stream = gridfsbucket.openDownloadStream(avatar._doc.docId);
     stream.on("error", function (error) {
       console.log(error);
@@ -337,13 +336,13 @@ export const getAvatarById = async (req, res) => {
       const user = await User.findById(req.params.id);
 
       if (!user) return res.status(404).end("Not found");
-      const avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
+      let avatar = await Avatar.findOne({ userId: user._doc._id.toString() });
+      if (!avatar) {
+        avatar = await Avatar.findById("628ccbb26d730a0ee8cd770a");
+      }
       let filetype = avatar._doc.filename.split(".").pop();
       res.set("content-type", "image/" + filetype);
-      res.set(
-        "content-disposition",
-        "attachment; filename=" + avatar._doc.filename
-      );
+
       const stream = gridfsbucket.openDownloadStream(avatar._doc.docId);
       stream.on("error", function (error) {
         console.log(error);
