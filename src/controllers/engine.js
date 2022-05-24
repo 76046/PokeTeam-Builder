@@ -12,6 +12,27 @@ export const getProcessing = (req, res) => {
   processing();
 };
 
+export const runEngine = async (req, res) => {
+  const facts = {
+    enemyPokemon: [
+      "627adb18a82fcdeb24ba22e2",
+      "627adb21a82fcdeb24ba232e",
+      "627adb27a82fcdeb24ba235f",
+      "627adb2ea82fcdeb24ba239c",
+      "627adb58a82fcdeb24ba24f3",
+    ],
+    returnCounters: true,
+  };
+
+  const ruleParams = await getRuleParams();
+  let dataStrong = extractRule(ruleParams, "dataStrong");
+  let dataWeak = extractRule(ruleParams, "dataWeak");
+  const number = facts.enemyPokemon.length;
+  const engine = await Expert(number, dataStrong, dataWeak);
+  let engineResult = await engine.run(facts);
+  return res.send(engineResult);
+};
+
 export const generateTeam = async (req, res) => {
   try {
     if (
@@ -21,7 +42,6 @@ export const generateTeam = async (req, res) => {
       return res.status(400).end("Invalid data");
     }
 
-    const facts = await findPokemons(req);
     const ruleParams = await getRuleParams();
     let dataStrong = extractRule(ruleParams, "dataStrong");
     let dataWeak = extractRule(ruleParams, "dataWeak");
