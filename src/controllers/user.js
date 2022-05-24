@@ -304,8 +304,8 @@ export const postAvatar = async (req, res) => {
     const user = await User.findOne({
       email: req.email,
     });
-
     if (!user) return res.status(404).end("Not found");
+    await Avatar.deleteMany({ userId: user._doc._id.toString() });
     let { file } = req.files;
     const stream = gridfsbucket.openUploadStream(file.name);
 
