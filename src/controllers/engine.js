@@ -29,11 +29,16 @@ export const generateTeam = async (req, res) => {
     const number = facts.enemyPokemon.length;
     const engine = await Expert(number, dataStrong, dataWeak);
     let engineResult = await engine.run(facts);
+    console.log("Engine result");
+    console.log(JSON.stringify(engineResult));
 
     let data = returnProccessingData(engineResult, facts, dataStrong, dataWeak);
+    console.log("Proccessing input");
+    console.log(JSON.stringify(data));
     let pokemonsMap = await createPokemonsMap();
     let processingResult = processing(data, pokemonsMap);
-
+    console.log("Proccessing result");
+    console.log(JSON.stringify(processingResult));
     if (req.email) {
       let s = await serialize(req, engineResult, facts, processingResult);
       return res.send(s);
